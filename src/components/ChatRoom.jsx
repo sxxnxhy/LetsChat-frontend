@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
+import MessageInput from './MessageInput'; // Import the new component
 
 function ChatRoom() {
   const [searchParams] = useSearchParams();
@@ -11,16 +12,23 @@ function ChatRoom() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [messageInput, setMessageInput] = useState('');
   const [isEditingSubject, setIsEditingSubject] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const isActiveRef = useRef(isActive); // Added a ref to track isActive
+  const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
+  const originalTitleRef = useRef(document.title); // Store the original title
   const stompClientRef = useRef(null);
   const messagesDivRef = useRef(null);
   const navigate = useNavigate();
 
-  console.log("랜더링됨" , isActive);
+  console.log("렌더링됨: ", isActive)
+
+  // Sync isActiveRef with isActive whenever it changes
+  useEffect(() => {
+    isActiveRef.current = isActive;
+  }, [isActive]);
 
   useEffect(() => {
     if (!chatRoomId) {
@@ -49,25 +57,16 @@ function ChatRoom() {
     };
   }, [chatRoomId]);
 
-  // New useEffect for activity detection
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        console.log("inactive")
         setUserInactive();
       } else {
-        console.log("active")
         setUserActive();
       }
     };
-    const handleFocus = () => {
-      console.log("active")
-      setUserActive();
-    };
-    const handleBlur = () => {
-      console.log("inactive")
-      setUserInactive();
-    };
+    const handleFocus = () => setUserActive();
+    const handleBlur = () => setUserInactive();
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
@@ -79,7 +78,6 @@ function ChatRoom() {
       window.removeEventListener('blur', handleBlur);
     };
   }, [chatRoomId]);
-  
 
   const loadChatHistory = (page) => {
     if (isLoading) return;
@@ -104,12 +102,9 @@ function ChatRoom() {
         if (page === 0) {
           setMessages(newMessages);
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              scrollToBottom();
-            });
-          });  
+            requestAnimationFrame(() => scrollToBottom());
+          });
         } else {
-
           const messagesDiv = messagesDivRef.current;
           const previousScrollHeight = messagesDiv.scrollHeight;
           const previousScrollTop = messagesDiv.scrollTop;
@@ -119,11 +114,9 @@ function ChatRoom() {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               const newScrollHeight = messagesDiv.scrollHeight;
-              const heightDifference = newScrollHeight - previousScrollHeight;
-              messagesDiv.scrollTop = previousScrollTop + heightDifference;
+              messagesDiv.scrollTop = previousScrollTop + (newScrollHeight - previousScrollHeight);
             });
           });
-
         }
         setIsLoading(false);
       })
@@ -136,9 +129,7 @@ function ChatRoom() {
 
   const scrollToBottom = () => {
     const messagesDiv = messagesDivRef.current;
-    if (messagesDiv) {
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+    if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
   };
 
   const handleScroll = () => {
@@ -148,13 +139,12 @@ function ChatRoom() {
     }
   };
 
-  const sendMessage = () => {
-    if (!isLoading && messageInput.trim()) {
+  const sendMessage = (content) => {
+    if (!isLoading && content.trim()) {
       stompClientRef.current.publish({
         destination: '/app/private-message',
-        body: JSON.stringify({ chatRoomId, senderId: localStorage.getItem('userId'), content: messageInput }),
+        body: JSON.stringify({ chatRoomId, senderId: localStorage.getItem('userId'), content }),
       });
-      setMessageInput('');
     }
   };
 
@@ -162,21 +152,22 @@ function ChatRoom() {
     if (msgData.senderName) setChatRoomName(msgData.senderName);
     setMessages(prev => [...prev, { type: 'system', content: msgData.content, enrolledAt: msgData.enrolledAt }]);
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToBottom();
-      });
+      requestAnimationFrame(() => scrollToBottom());
     });
-
   };
 
   const handleUserMessage = (msgData) => {
-    console.log(isActive)
     setMessages(prev => [...prev, { type: 'user', ...msgData }]);
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToBottom();
-      });
+      requestAnimationFrame(() => scrollToBottom());
     });
+    if (isActiveRef.current == false) {
+      setUnreadCount(prev => {
+        const newCount = prev + 1;
+        document.title = newCount > 0 ? `(${newCount}) ${originalTitleRef.current}` : originalTitleRef.current;
+        return newCount;
+      });
+    }
   };
 
   const toggleEditSubject = () => {
@@ -198,9 +189,7 @@ function ChatRoom() {
     }
   };
 
-  const cancelEditSubject = () => {
-    setIsEditingSubject(false);
-  };
+  const cancelEditSubject = () => setIsEditingSubject(false);
 
   const setUserInactive = () => {
     setIsActive(false);
@@ -216,6 +205,8 @@ function ChatRoom() {
       destination: '/app/user-active',
       body: JSON.stringify({ chatRoomId, userId: localStorage.getItem('userId') }),
     });
+    setUnreadCount(0); // Reset unread count
+    document.title = originalTitleRef.current; // Restore original title
   };
 
   return (
@@ -271,19 +262,7 @@ function ChatRoom() {
           </div>
         ))}
       </div>
-      <div className="chat-input">
-        <input
-          type="text"
-          placeholder="Type a message..."
-          maxLength="255"
-          value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') sendMessage();
-          }}
-        />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+      <MessageInput sendMessage={sendMessage} />
       <div className={`user-list-sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="sidebar-header">
           <h3>Members of this Chat</h3>

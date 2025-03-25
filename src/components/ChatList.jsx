@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 
 function ChatList() {
   const [chats, setChats] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
+  const originalTitleRef = useRef(document.title); // Store the original title
+
+
   const navigate = useNavigate();
+
 
   useEffect(() => {
     loadChatList();
@@ -19,6 +24,11 @@ function ChatList() {
         const refreshSignal = JSON.parse(message.body);
         if (refreshSignal === true) {
           loadChatList();
+          setUnreadCount(prev => {
+            const newCount = prev + 1;
+            document.title = newCount > 0 ? `(${newCount}) ${originalTitleRef.current}` : originalTitleRef.current;
+            return newCount;
+          });
         }
       });
     };
@@ -52,6 +62,10 @@ function ChatList() {
     fetch('/api/user/logout', { method: 'POST' })
       .then(() => navigate('/login'));
   };
+  window.addEventListener('focus', () => {
+    setUnreadCount(0); // Reset unread count
+    document.title = originalTitleRef.current; // Restore original title
+  });
 
   return (
     <>
