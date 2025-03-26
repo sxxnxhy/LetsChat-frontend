@@ -18,7 +18,8 @@ function ChatList() {
 
     loadChatList();
     const stompClient = new Client({
-      brokerURL: `ws://${window.location.hostname}:8080/websocket`,
+      // brokerURL: `wss://${window.location.hostname}/websocket`,
+      brokerURL: `${import.meta.env.VITE_WEBSOCKET_URL}/websocket`,
     });
     stompClient.activate();
     stompClient.onConnect = (frame) => {
