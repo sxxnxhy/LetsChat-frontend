@@ -6,8 +6,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
-        // target: 'https://syoo.shop',
+        target: 'https://syoo.shop',
+        // target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/websocket': {
+        target: 'wss://syoo.shop',  // WebSocket server
+        // target: 'ws://localhost:8080',  // WebSocket server
+        ws: true,  // Enable WebSocket proxying
         changeOrigin: true,
       },
     },

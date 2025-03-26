@@ -44,7 +44,7 @@ function ChatRoom() {
     loadChatHistory(0);
 
     const stompClient = new Client({
-      brokerURL: `${import.meta.env.VITE_WEBSOCKET_URL}/websocket`,
+      brokerURL: "/websocket",
     });
     stompClient.activate();
     stompClientRef.current = stompClient;
