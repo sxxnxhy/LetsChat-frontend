@@ -6,12 +6,16 @@ function ChatList() {
   const [chats, setChats] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
   const originalTitleRef = useRef(document.title); // Store the original title
-
-
   const navigate = useNavigate();
 
-
   useEffect(() => {
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
     loadChatList();
     const stompClient = new Client({
       brokerURL: `ws://${window.location.hostname}:8080/websocket`,
@@ -53,7 +57,7 @@ function ChatList() {
       .catch(error => {
         console.error('Error:', error);
         setChats([]);
-        setTimeout(() => navigate('/login'), 2000);
+        navigate('/login');
       });
   };
 

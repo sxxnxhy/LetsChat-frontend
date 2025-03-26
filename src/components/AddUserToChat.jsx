@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 function AddUserToChat() {
@@ -7,6 +7,15 @@ function AddUserToChat() {
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+  }, []);
+  
 
   const searchUser = () => {
     if (searchInput) {

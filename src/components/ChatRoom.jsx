@@ -16,9 +16,9 @@ function ChatRoom() {
   const [newSubject, setNewSubject] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const isActiveRef = useRef(isActive); // Added a ref to track isActive
-  const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
-  const originalTitleRef = useRef(document.title); // Store the original title
+  const isActiveRef = useRef(isActive); //a ref to track isActive
+  const [unreadCount, setUnreadCount] = useState(0);
+  const originalTitleRef = useRef(document.title);
   const stompClientRef = useRef(null);
   const messagesDivRef = useRef(null);
   const navigate = useNavigate();
@@ -31,6 +31,11 @@ function ChatRoom() {
   }, [isActive]);
 
   useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
     if (!chatRoomId) {
       navigate('/chat-list');
       return;

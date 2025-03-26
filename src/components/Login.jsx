@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -6,6 +6,10 @@ function Login() {
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem('userId');
+  }, []);
 
   const handleLogin = () => {
     if (username && password) {

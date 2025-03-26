@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function FindUser() {
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+  }, []);
 
   const searchUser = () => {
     if (searchInput) {
