@@ -12,7 +12,7 @@ body {
 /* Common Elements */
 /* ========================================================================= */
 a {
-    color: #007bff;
+    color: #0862f9;
     text-decoration: none;
 }
 
@@ -30,7 +30,7 @@ input, button {
 button {
     padding: 12px 20px;
     border-radius: 20px;
-    background-color: #007bff;
+    background-color: #0862f9;
     color: white;
     border: none;
     cursor: pointer;
@@ -148,7 +148,7 @@ button:hover {
 }
 
 .logout-link {
-    color: #007bff;
+    color: #0862f9;
     text-decoration: none;
     font-size: 14px;
 }
@@ -183,7 +183,7 @@ button:hover {
 }
 
 .chat-header a {
-    color: #007bff;
+    color: #0862f9;
     font-size: 14px;
     text-decoration: none;
 }
@@ -227,7 +227,7 @@ button:hover {
 .chat-input button {
     padding: 12px 20px;
     border-radius: 20px;
-    background-color: #007bff;
+    background-color: #0862f9;
     color: white;
     border: none;
     cursor: pointer;
@@ -312,7 +312,7 @@ button:hover {
     font-size: 20px;
     cursor: pointer;
     padding: 0;
-    color: #007bff;
+    color: #0862f9;
     transition: color 0.2s ease;
 }
 
@@ -399,7 +399,7 @@ button:hover {
 }
 
 .sent .message-bubble {
-    background-color: #007bff;
+    background-color: #0862f9;
     color: white;
     border-bottom-right-radius: 4px;
     float: right;
@@ -518,7 +518,7 @@ button:hover {
 }
 
 .chat-link {
-    color: #007bff;
+    color: #0862f9;
     text-decoration: none;
     font-size: 12px;
 }
@@ -558,7 +558,7 @@ button:hover {
 .login-form button {
     padding: 12px 20px;
     border-radius: 20px;
-    background-color: #007bff;
+    background-color: #0862f9;
     color: white;
     border: none;
     cursor: pointer;
@@ -605,7 +605,7 @@ button:hover {
 }
 
 .signup-prompt a {
-    color: #007bff;
+    color: #0862f9;
     text-decoration: none;
 }
 
