@@ -159,6 +159,14 @@ function ChatRoom() {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => scrollToBottom());
     });
+    if (msgData.content.endsWith('left the chat')) {
+      const username = msgData.content.replace(/"(.+)" left the chat/, '$1'); 
+      setUserList(prev => prev.filter(user => user.name !== username));
+    }
+    if (/^".+" added by ".+"$/.test(msgData.content)) {
+      const username = msgData.content.replace(/^"(.+)" added by ".+"$/, '$1');
+      setUserList(prev => [...prev, { name: username }]); 
+    }
   };
 
   const handleUserMessage = (msgData) => {
@@ -212,6 +220,21 @@ function ChatRoom() {
     });
     setUnreadCount(0); // Reset unread count
     document.title = originalTitleRef.current; // Restore original title
+  };
+
+  const handleLeaveChat = async () => {
+    try {
+      const response = await fetch(`/api/chat-room-user/leave-chat?chatRoomId=${chatRoomId}`, {
+        method: "DELETE"
+      });
+      if (response.ok) {
+        navigate('/chat-list')
+      } else {
+        console.error("Failed to leave chat");
+      }
+    } catch (error) {
+      console.error("Error leaving chat:", error);
+    }
   };
 
   return (
@@ -281,9 +304,15 @@ function ChatRoom() {
           ))}
         </ul>
         <br />
-        <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
-          Add User
-        </button>
+        <div className='chat-actions'>
+          <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
+            Add User
+          </button>
+          <button onClick={handleLeaveChat} className='cancel-button'>
+            Leave chat
+          </button>
+        </div>
+        <p className="footer">Tip 💡</p>
         <p className="footer">Tap the chat name to rename it.</p>
         <p className="footer">채팅 이름을 탭하여 변경할 수 있습니다.</p>
       </div>
