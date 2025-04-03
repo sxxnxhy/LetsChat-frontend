@@ -284,6 +284,8 @@ function ChatRoom() {
         <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
           Add User
         </button>
+        <p className="footer">Tap the chat name to rename it.</p>
+        <p className="footer">채팅 이름을 탭하여 변경할 수 있습니다.</p>
       </div>
     </div>
   );

@@ -144,7 +144,6 @@ button:hover {
     display: flex;
     justify-content: space-between; /* Push button to left, link to right */
     align-items: center;
-    margin-top: 20px; /* Space above the actions */
 }
 
 .logout-link {

@@ -73,8 +73,11 @@ function ChatList() {
 
   return (
     <>
-      <div className="container">
-        <h2>Your Chats</h2>
+      <div className="container"> 
+        <div className="chat-actions">
+          <h2>Your Chats</h2> 
+          <button onClick={() => navigate('/find-user')}>New chat</button>
+        </div>
         <hr />
         <div id="chatList">
           {chats.length === 0 ? (
@@ -127,8 +130,8 @@ function ChatList() {
                   </Link>
                   <p className="chat-list-last-message">
                     <span className="chat-list-last-message-text">
-                      <Link to={`/chat-room?chatRoomId=${chat.chatRoomId}`} style={{ color: 'black' }}>
-                        "{chat.lastMessage || 'No messages yet'}"
+                      <Link to={`/chat-room?chatRoomId=${chat.chatRoomId}`} style={{ color: '#777' }}>
+                        {chat.lastMessage || 'No messages yet'}
                       </Link>
                     </span>
                     <span>{timeDisplay}</span>
@@ -139,9 +142,10 @@ function ChatList() {
             })
           )}
         </div>
-        <div className="chat-actions">
-          <button onClick={() => navigate('/find-user')}>Search Users</button>
-          <a href="/login" onClick={logout} className="logout-link">Logout</a>
+        <div style={{ display: "flex" }}>
+          <a href="/login" onClick={logout} className="logout-link" style={{ marginLeft: "auto" }}>
+            Logout
+          </a>  
         </div>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>
