@@ -30,7 +30,7 @@ function SignUp() {
           setTimeout(() => navigate('/login'), 1000);
         })
         .catch(error => {
-          setStatus('This email is taken.');
+          setStatus('Either this email is taken or invalid email. Please check your email');
           console.error('Error:', error);
         });
     } else {

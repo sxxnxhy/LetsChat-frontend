@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 
 function ChatList() {
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
   const originalTitleRef = useRef(document.title); // Store the original title
   const [name, setName] = useState([]);
@@ -100,7 +100,10 @@ function ChatList() {
 
         <div style={{ height: '1px', backgroundColor: '#ddd', margin: '8px 0' }} />
         <div id="chatList">
-          {chats.length === 0 ? (
+        {chats === null ? (
+          <p className="loading">Loading...</p>
+          ) :
+          chats.length === 0 ? (
             <>
               <p className="empty-message">
                 No chats yet. Find a user and start a conversation!
