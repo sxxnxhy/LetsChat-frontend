@@ -15,7 +15,7 @@ function MessageInput({ sendMessage }) {
       <input
         type="text"
         placeholder="Type a message..."
-        maxLength="255"
+        maxLength="3000"
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}
         onKeyUp={(e) => {

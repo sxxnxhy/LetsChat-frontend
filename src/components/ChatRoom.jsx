@@ -223,12 +223,15 @@ function ChatRoom() {
   };
 
   const handleLeaveChat = async () => {
+    const confirmLeave = window.confirm("Are you sure you want to leave this chat?");
+    if (!confirmLeave) return;
+  
     try {
       const response = await fetch(`/api/chat-room-user/leave-chat?chatRoomId=${chatRoomId}`, {
         method: "DELETE"
       });
       if (response.ok) {
-        navigate('/chat-list')
+        navigate('/chat-list');
       } else {
         console.error("Failed to leave chat");
       }
@@ -314,7 +317,7 @@ function ChatRoom() {
         </div>
         <p className="footer">Tip 💡</p>
         <p className="footer">Tap the chat name to rename it.</p>
-        <p className="footer">채팅 이름을 탭하여 변경할 수 있습니다.</p>
+        <p className="footer">채팅방 이름을 탭하여 변경할 수 있습니다.</p>
       </div>
     </div>
   );
