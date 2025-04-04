@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
   const navigate = useNavigate();
@@ -12,12 +12,12 @@ function Login() {
   }, []);
 
   const handleLogin = () => {
-    if (username && password) {
+    if (email && password) {
       setStatus('Logging in...');
       fetch('/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: username, password }),
+        body: JSON.stringify({ email: email, password: password }),
       })
         .then(response => {
           if (!response.ok) throw new Error('Login failed');
@@ -29,11 +29,11 @@ function Login() {
           setTimeout(() => navigate('/chat-list'), 1000);
         })
         .catch(error => {
-          setStatus('Invalid username or password');
+          setStatus('Invalid email or password');
           console.error('Error:', error);
         });
     } else {
-      setStatus('Please enter both username and password.');
+      setStatus('Please enter both email and password.');
     }
   };
 
@@ -51,12 +51,12 @@ function Login() {
         <p className="welcome-text">Connect with friends instantly!</p>
         <div className="login-form">
           <input
-            type="text"
-            id="username"
-            placeholder="Name"
+            type="email"
+            id="email"
+            placeholder="Email"
             maxLength="255"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             onKeyUp={handleKeyUp}
           />
           <input

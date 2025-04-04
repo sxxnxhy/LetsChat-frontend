@@ -619,3 +619,10 @@ button:hover {
     text-align: center;
     width: 100%;
 }
+.small {
+    color: grey;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    margin-top: 0;
+    text-align: end;
+  }

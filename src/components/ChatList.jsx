@@ -6,6 +6,7 @@ function ChatList() {
   const [chats, setChats] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
   const originalTitleRef = useRef(document.title); // Store the original title
+  const [name, setName] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +18,7 @@ function ChatList() {
     }
 
     loadChatList();
+    loadUserName();
     const stompClient = new Client({
       brokerURL: "/websocket",
     });
@@ -60,6 +62,22 @@ function ChatList() {
         navigate('/login');
       });
   };
+  const loadUserName = () => {
+    fetch('/api/chat-list/get-name', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to get: ' + response.status);
+        return response.json();
+      })
+      .then(name => {
+        setName(name.name);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
 
   const logout = (event) => {
     event.preventDefault();
@@ -78,7 +96,9 @@ function ChatList() {
           <h2>Your Chats</h2> 
           <button onClick={() => navigate('/find-user')}>New chat</button>
         </div>
-        <hr />
+        <p className='small'>Logged in as {name}</p>
+
+        <div style={{ height: '1px', backgroundColor: '#ddd', margin: '8px 0' }} />
         <div id="chatList">
           {chats.length === 0 ? (
             <>

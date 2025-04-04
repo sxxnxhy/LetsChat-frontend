@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [name, setname] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [status, setStatus] = useState('');
@@ -13,12 +14,12 @@ function SignUp() {
       setStatus('Please check your passwords');
       return;
     }
-    if (username && password) {
+    if (email && name && password) {
       setStatus('Signing up...');
       fetch('/api/user/sign-up', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: username, password }),
+        body: JSON.stringify({ name: name, password: password, email: email}),
       })
         .then(response => {
           if (!response.ok) throw new Error('Sign-up failed');
@@ -29,11 +30,11 @@ function SignUp() {
           setTimeout(() => navigate('/login'), 1000);
         })
         .catch(error => {
-          setStatus('This user name is taken.');
+          setStatus('This email is taken.');
           console.error('Error:', error);
         });
     } else {
-      setStatus('Please enter both username and password.');
+      setStatus('Please check your email, name and password');
     }
   };
 
@@ -41,17 +42,24 @@ function SignUp() {
     <>
       <div className="container">
         <h2>Sign-up</h2>
-        <p className="footer">The name you enter will be displayed as your username in the chat.</p>
-        <p className="footer">입력한 이름은 채팅방에서 사용자 이름으로 표시됩니다. 한글도 사용 가능합니다.</p>
         <div className="login-form">
           <input
-            type="text"
-            id="username"
-            placeholder="Enter your name"
+            type="email"
+            id="email"
+            placeholder="Email"
             maxLength={100}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
+          <input
+            type="text"
+            id="name"
+            placeholder="Name"
+            maxLength={100}
+            value={name}
+            onChange={(e) => setname(e.target.value)}
+          />
+          <p className="footer">The name you enter will be displayed as your name in the chat.<br/><br/>입력한 이름은 채팅방에서 사용자 이름으로 표시됩니다. 한글도 사용 가능합니다.</p>
           <br />
           <input
             type="password"
@@ -67,6 +75,8 @@ function SignUp() {
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
           />
+          <br/>
+
           <p id="loginStatus">{status}</p>
           <button onClick={handleSignUp}>Register</button>
         </div>
