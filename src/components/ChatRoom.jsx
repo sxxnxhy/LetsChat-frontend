@@ -302,7 +302,10 @@ function ChatRoom() {
         <ul>
           {userList.map(user => (
             <li key={user.userId}>
-              {user.userId == localStorage.getItem('userId') ? `${user.name} (You)` : user.name}
+              <span>
+                {user.userId == localStorage.getItem('userId') ? `${user.name} (You)` : user.name}
+              </span>
+              <p className="user-action">{user.email}</p>
             </li>
           ))}
         </ul>

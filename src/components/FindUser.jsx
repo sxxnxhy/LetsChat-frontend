@@ -108,7 +108,7 @@ function FindUser() {
                         Start new chat
                       </a>
                     </span>
-                    <p className="user-action"></p>
+                    <p className="user-action">{user.email}</p>
                     <div className="user-divider"></div>
                   </div>
                 );

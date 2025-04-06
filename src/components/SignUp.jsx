@@ -10,16 +10,24 @@ function SignUp() {
   const navigate = useNavigate();
 
   const handleSignUp = () => {
+    const nameRegex = /^[a-zA-Z가-힣\s\-.'']{1,100}$/;
+  
     if (password !== passwordConfirm) {
       setStatus('Please check your passwords');
       return;
     }
+  
+    if (!nameRegex.test(name)) {
+      setStatus("Name can only include Korean/English letters, spaces, - . ' and must be under 100 characters.");
+      return;
+    }
+  
     if (email && name && password) {
       setStatus('Signing up...');
       fetch('/api/user/sign-up', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, password: password, email: email}),
+        body: JSON.stringify({ name: name, password: password, email: email }),
       })
         .then(response => {
           if (!response.ok) throw new Error('Sign-up failed');
