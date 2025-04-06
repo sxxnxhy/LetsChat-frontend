@@ -540,21 +540,53 @@ button:hover {
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Space between form elements */
-    align-items: center; /* Center form elements horizontally */
-}
-
-.login-form input {
-    width: 100%; /* Full width for consistency */
-    max-width: 300px; /* Limit input width */
-    padding: 12px 16px;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .email-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* Ensure all inputs have consistent styling */
+  .login-form input {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin: 5px 0;
     border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  /* Buttons in the email section */
+  .verification-btn {
+    padding: 12px 20px;
     border-radius: 20px;
-    outline: none;
+    background-color: white;
+    color: #0862f9;
+    border: 2px solid #0862f9;
+    cursor: pointer;
     font-size: 14px;
-}
-
-.login-form button {
+    transition: background-color 0.2s ease;
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+  
+  .verification-btn:hover {
+    background-color: #f0f4ff;
+  }
+  
+  /* Register button */
+  .login-form button:not(.verification-btn) {
+    width: 100%;
+    max-width: 300px;
     padding: 12px 20px;
     border-radius: 20px;
     background-color: #0862f9;
@@ -563,21 +595,24 @@ button:hover {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s ease;
-    width: 100%; /* Full width */
-    max-width: 300px; /* Match input width */
-}
-
-.login-form button:hover {
-    background-color: #0056b3;
-}
-
-#loginStatus {
+    box-sizing: border-box;
+  }
+  
+  /* Unified status styling */
+  .verification-status {
     font-size: 12px;
-    color: #777;
-    margin: 10px 0 0;
-    min-height: 20px; /* Prevent layout shift */
-}
-
+    margin: 5px 0 0;
+    text-align: center;
+    color: #777; /* Default color, same as original #signupStatus */
+  }
+  
+  .verification-status.success {
+    color: #28a745; /* Green for success */
+  }
+  
+  .verification-status.error {
+    color: #dc3545; /* Red for error */
+  }
 
 /* ========================================================================= */
 /* Miscellaneous */

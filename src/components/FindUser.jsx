@@ -66,7 +66,7 @@ function FindUser() {
   return (
     <>
       <div className="container">
-        <h2>Search a User</h2>
+        <h2>Search Users</h2>
         <div className="search-bar">
           <input
             type="text"
@@ -81,7 +81,7 @@ function FindUser() {
         </div>
         <div id="userResults">
           {users.length === 0 ? (
-            <p>Please enter a username to search.</p>
+            <p className='footer'>Please enter a username to search.</p>
           ) : (
             users.map(user => {
               if (user.userId === parseInt(localStorage.getItem('userId'))) {
