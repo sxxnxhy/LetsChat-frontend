@@ -545,6 +545,44 @@ button:hover {
     width: 100%;
   }
   
+  /* Ensure all inputs have consistent styling */
+  .login-form input {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
+  }
+  
+  .login-form button {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    background-color: #0862f9;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
+  }
+  
+
+/* ========================================================================= */
+/* Signup Page */
+/* ========================================================================= */
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+  }
+  
   .email-section {
     display: flex;
     flex-direction: column;
@@ -554,7 +592,7 @@ button:hover {
   }
   
   /* Ensure all inputs have consistent styling */
-  .login-form input {
+  .signup-form input {
     width: 100%;
     max-width: 300px;
     padding: 10px;
@@ -584,7 +622,7 @@ button:hover {
   }
   
   /* Register button */
-  .login-form button:not(.verification-btn) {
+  .signup-form button:not(.verification-btn) {
     width: 100%;
     max-width: 300px;
     padding: 12px 20px;

@@ -139,7 +139,7 @@ function SignUp() {
     <>
       <div className="container">
         <h2>Sign-up</h2>
-        <div className="login-form">
+        <div className="signup-form">
           <div className="email-section">
             <input
               type="email"
@@ -192,6 +192,8 @@ function SignUp() {
               </p>
             )}
           </div>
+
+          <br />
 
           <input
             type="text"
