@@ -242,7 +242,7 @@ function ChatRoom() {
     }
   };
   const handleSendNotification = async () => {
-    const confirmLeave = window.confirm("Are you sure you want to send notification email to all the users in this chat?");
+    const confirmLeave = window.confirm("채팅의 모든 대화상대에게 알림 이메일을 보내시겠습니까?\n\n(Are you sure you want to send a notification email to all users in this chat?)");
     if (!confirmLeave) return;
 
     setisNotificationSending(true);

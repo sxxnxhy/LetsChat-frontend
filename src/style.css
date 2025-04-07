@@ -126,6 +126,7 @@ button:hover {
     background-color: orangered;
     border-radius: 50%;
     margin-left: 5px;
+    flex-shrink: 0;
 }
 
 .chat-divider {

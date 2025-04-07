@@ -77,7 +77,7 @@ function AddUserToChat() {
   return (
     <>
       <div className="container">
-        <h2>Add User to Chat</h2>
+        <h2>Add User To Chat</h2>
         <div className="search-bar">
           <input
             type="text"
@@ -110,7 +110,7 @@ function AddUserToChat() {
                   </a>
                 )}
               </span>
-              <p className="user-action"></p>
+              <p className="user-action">{user.email}</p>
               <div className="user-divider"></div>
             </div>
           ))}
