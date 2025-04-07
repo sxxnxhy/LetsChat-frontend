@@ -330,6 +330,8 @@ button:hover {
     padding: 20px;
     transition: right 0.3s ease;
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
 }
 
 .user-list-sidebar.active {
@@ -351,12 +353,6 @@ button:hover {
     color: #333;
 }
 
-.user-list-sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
 .user-list-sidebar li {
     padding: 10px 0;
     font-size: 14px;
@@ -367,6 +363,28 @@ button:hover {
 .user-list-sidebar li:last-child {
     border-bottom: none;
 }
+
+.user-list-sidebar ul {
+    max-height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .user-list-sidebar ul::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .user-list-sidebar ul::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  .user-count {
+    font-size: 0.9em;
+    color: #666;
+  }
 
 /* ========================================================================= */
 /* Message Styling */
@@ -699,3 +717,5 @@ button:hover {
     margin-top: 0;
     text-align: end;
   }
+
+

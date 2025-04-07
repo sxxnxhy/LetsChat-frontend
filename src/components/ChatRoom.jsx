@@ -19,6 +19,8 @@ function ChatRoom() {
   const isActiveRef = useRef(isActive); //a ref to track isActive
   const [unreadCount, setUnreadCount] = useState(0);
   const originalTitleRef = useRef(document.title);
+  const [isNotificationSent, setIsNotificationSent] = useState(false);
+  const [isNotificationSending, setisNotificationSending] = useState(false);
   const stompClientRef = useRef(null);
   const messagesDivRef = useRef(null);
   const navigate = useNavigate();
@@ -239,6 +241,27 @@ function ChatRoom() {
       console.error("Error leaving chat:", error);
     }
   };
+  const handleSendNotification = async () => {
+    const confirmLeave = window.confirm("Are you sure you want to send notification email to all the users in this chat?");
+    if (!confirmLeave) return;
+
+    setisNotificationSending(true);
+
+    try {
+      const response = await fetch(`/api/email/notification/send?chatRoomId=${chatRoomId}`, {
+        method: "POST"
+      });
+      if (response.ok) {
+        setIsNotificationSent(true);
+        setisNotificationSending(false);
+      } else {
+        window.alert("Failed to send notification");
+        setisNotificationSending(false);
+      }
+    } catch (error) {
+      console.error("Error sending the notifications:", error);
+    }
+  };
 
   return (
     <div className="chat-container">
@@ -295,34 +318,49 @@ function ChatRoom() {
       </div>
       <MessageInput sendMessage={sendMessage} />
       <div className={`user-list-sidebar ${isSidebarOpen ? 'active' : ''}`}>
-        <div className="sidebar-header">
-          <h3>Members of this Chat</h3>
-          <button onClick={() => setIsSidebarOpen(false)} className="hamburger-icon">☰</button>
-        </div>
-        <ul>
-          {userList.map(user => (
-            <li key={user.userId}>
-              <span>
-                {user.userId == localStorage.getItem('userId') ? `${user.name} (You)` : user.name}
-              </span>
-              <p className="user-action">{user.email}</p>
-            </li>
-          ))}
-        </ul>
-        <br />
-        <div className='chat-actions'>
-          <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
-            Add User
-          </button>
-          <button onClick={handleLeaveChat} className='cancel-button'>
-            Leave chat
-          </button>
-        </div>
-        <p className="footer">Tip 💡</p>
-        <p className="footer">Tap the chat name to rename it.</p>
-        <p className="footer">채팅방 이름을 탭하여 변경할 수 있습니다.</p>
+      <div className="sidebar-header">
+        <h3>대화상대 <span className="user-count">({userList.length})</span></h3>
+        <button onClick={() => setIsSidebarOpen(false)} className="hamburger-icon">☰</button>
       </div>
+      <ul>
+        {userList.map(user => (
+          <li key={user.userId}>
+            <span>
+              {user.userId == localStorage.getItem('userId') ? `${user.name} (You)` : user.name}
+            </span>
+            <p className="user-action">{user.email}</p>
+          </li>
+        ))}
+
+        <div className="sidebar-footer">
+          <br />
+          <div className='chat-actions'>
+            <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
+              Add User
+            </button>
+            <button onClick={handleLeaveChat} className='cancel-button'>
+              Leave chat
+            </button>
+          </div>
+          <p className="footer">Tip 💡</p>
+          <p className="footer">Tap the chat name to rename it.</p>
+          <p className="footer">채팅방 이름을 탭하여 변경할 수 있습니다.</p>
+          <br />
+          <button
+            className='verification-btn'
+            onClick={handleSendNotification}
+            style={{ display: 'block', margin: '20px auto' }}
+            disabled={isNotificationSending || isNotificationSent}
+          >
+            {isNotificationSent ? '완료!' : '이메일 알림 보내기'}
+          </button>
+          <p className="footer">{isNotificationSending ? 'Sending...' : '채팅방에 있는 유저 모두에게 이메일 알림을 보냅니다'}</p>
+          <br/>
+        </div>
+      </ul>
     </div>
+
+  </div>
   );
 }
 

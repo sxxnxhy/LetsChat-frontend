@@ -93,7 +93,7 @@ function ChatList() {
     <>
       <div className="container"> 
         <div className="chat-actions">
-          <h2>Your Chats</h2> 
+          <h2>Chats</h2> 
           <button onClick={() => navigate('/find-user')}>New chat</button>
         </div>
         <p className='small'>Logged in as {name}</p>
