@@ -589,8 +589,9 @@ button:hover {
     box-sizing: border-box;
   }
   .kakao-login-btn img {
+    width: 300px; /* adjust as needed */
+    height: auto;
     cursor: pointer;
-    transition: all 0.2s ease;
   }
   
   

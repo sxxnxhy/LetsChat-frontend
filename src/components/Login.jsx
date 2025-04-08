@@ -89,7 +89,7 @@ function Login() {
           <p id="loginStatus">{status}</p>
           <button onClick={handleLogin}>Login</button>
           <a onClick={handleKakaoLogin} className="kakao-login-btn">
-            <img src="../../images/kakao_login_medium_wide.png" />
+            <img src="../../images/kakao_login_large_wide.png" />
           </a>
           <p className="signup-prompt">
             New here? <a href="/sign-up">Sign up</a>
