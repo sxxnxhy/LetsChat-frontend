@@ -97,10 +97,10 @@ function ChatList() {
     event.preventDefault();
     fetch('/api/user/logout', { method: 'POST' })
       .then(() => 
-        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=eb003ac55ade7ba2f909266448707b25&logout_redirect_uri=http://localhost:5176/login`
+        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=eb003ac55ade7ba2f909266448707b25&logout_redirect_uri=https://syoo.shop/login`
     );
   };
-  
+
   window.addEventListener('focus', () => {
     setUnreadCount(0); // Reset unread count
     document.title = originalTitleRef.current; // Restore original title
