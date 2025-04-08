@@ -86,8 +86,8 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyUp={handleKeyUp}
           />
-          <p id="loginStatus">{status}</p>
           <button onClick={handleLogin}>Login</button>
+          <p id="loginStatus">{status}</p>
           <a onClick={handleKakaoLogin} className="kakao-login-btn">
             <img src="../../images/kakao_login_large_wide.png" />
           </a>

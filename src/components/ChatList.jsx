@@ -97,7 +97,7 @@ function ChatList() {
     event.preventDefault();
     fetch('/api/user/logout', { method: 'POST' })
       .then(() => 
-        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=eb003ac55ade7ba2f909266448707b25&logout_redirect_uri=https://syoo.shop/login`
+        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=6bb806108f6f40c79a40d5fc93063fd5&logout_redirect_uri=https://syoo.shop/login`
     );
   };
 
