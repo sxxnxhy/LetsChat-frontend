@@ -36,6 +36,24 @@ function Login() {
       setStatus('Please enter both email and password.');
     }
   };
+  
+  const handleKakaoLogin = () => {
+    fetch('/api/oauth/kakao', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Login failed');
+        return response.json();
+      })
+      .then(data => {
+        window.location.href = data.url; // redirect to Kakao
+      })
+      .catch(error => {
+        setStatus('카카오 로그인 에러');
+        console.error('Error:', error);
+      });
+  };
 
   const handleKeyUp = (event) => {
     if (event.key === 'Enter') {
@@ -70,6 +88,9 @@ function Login() {
           />
           <p id="loginStatus">{status}</p>
           <button onClick={handleLogin}>Login</button>
+          <a onClick={handleKakaoLogin} className="kakao-login-btn">
+            <img src="../../images/kakao_login_medium_wide.png" />
+          </a>
           <p className="signup-prompt">
             New here? <a href="/sign-up">Sign up</a>
           </p>

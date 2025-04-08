@@ -13,8 +13,22 @@ function ChatList() {
 
     const userId = localStorage.getItem('userId');
     if (!userId) {
-      navigate('/login');
-      return;
+      fetch('/api/user/get-user-id', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to load user ID: ' + response.status);
+          return response.json();
+        })
+        .then(user => {
+          localStorage.setItem('userId', user.userId)
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          setChats([]);
+          navigate('/login');
+        });
     }
 
     loadChatList();
@@ -82,8 +96,11 @@ function ChatList() {
   const logout = (event) => {
     event.preventDefault();
     fetch('/api/user/logout', { method: 'POST' })
-      .then(() => navigate('/login'));
+      .then(() => 
+        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=eb003ac55ade7ba2f909266448707b25&logout_redirect_uri=http://localhost:5176/login`
+    );
   };
+  
   window.addEventListener('focus', () => {
     setUnreadCount(0); // Reset unread count
     document.title = originalTitleRef.current; // Restore original title

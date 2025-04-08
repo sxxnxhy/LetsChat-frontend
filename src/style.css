@@ -588,6 +588,11 @@ button:hover {
     transition: background-color 0.2s ease;
     box-sizing: border-box;
   }
+  .kakao-login-btn img {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
   
 
 /* ========================================================================= */
