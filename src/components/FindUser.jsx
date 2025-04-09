@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 
 function FindUser() {
   const [searchInput, setSearchInput] = useState('');
@@ -77,7 +79,7 @@ function FindUser() {
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyUp={handleKeyUp}
           />
-          <button onClick={searchUser}>Search</button>
+          <button onClick={searchUser}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
         </div>
         <div id="userResults">
           {users.length === 0 ? (
@@ -116,7 +118,7 @@ function FindUser() {
             })
           )}
         </div>
-        <button onClick={() => navigate('/chat-list')}>Back to Chats</button>
+        <button onClick={() => navigate('/chat-list')} ><FontAwesomeIcon icon={faArrowLeftLong} /> Back to Chats</button>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>
     </>

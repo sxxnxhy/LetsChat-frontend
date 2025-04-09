@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 
 function AddUserToChat() {
   const [searchParams] = useSearchParams();
@@ -88,7 +90,7 @@ function AddUserToChat() {
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyUp={handleKeyUp}
           />
-          <button onClick={searchUser}>Search</button>
+          <button onClick={searchUser}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
         </div>
         <div id="userResults">
           {users.map(user => (
@@ -115,9 +117,9 @@ function AddUserToChat() {
             </div>
           ))}
         </div>
-        <div className="chat-actions">
-          <a href={`/chat-room?chatRoomId=${chatRoomId}`}>Back to Chat</a>
-        </div>
+        <button onClick={() => navigate(`/chat-room?chatRoomId=${chatRoomId}`)}>
+        <FontAwesomeIcon icon={faArrowLeftLong} /> Back to Chat
+        </button>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>
     </>

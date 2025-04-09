@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import MessageInput from './MessageInput'; // Import the new component
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars } from '@fortawesome/free-solid-svg-icons';
+
+
 
 function ChatRoom() {
   const [searchParams] = useSearchParams();
@@ -286,8 +290,8 @@ function ChatRoom() {
           )}
         </h2>
         <div className="header-actions">
-          <a href="/chat-list">Back to Chats</a>
-          <button onClick={() => setIsSidebarOpen(true)} className="hamburger-icon">☰</button>
+          {/* <a href="/chat-list"><FontAwesomeIcon icon={faArrowLeft} /> Back to Chats</a> */}
+          <button onClick={() => setIsSidebarOpen(true)} className="hamburger-icon"><FontAwesomeIcon icon={faBars} /></button>
         </div>
       </div>
       <div className="chat-messages" ref={messagesDivRef} onScroll={handleScroll}>
@@ -320,7 +324,7 @@ function ChatRoom() {
       <div className={`user-list-sidebar ${isSidebarOpen ? 'active' : ''}`}>
       <div className="sidebar-header">
         <h3>대화상대 <span className="user-count">({userList.length})</span></h3>
-        <button onClick={() => setIsSidebarOpen(false)} className="hamburger-icon">☰</button>
+        <button onClick={() => setIsSidebarOpen(false)} className="hamburger-icon"><FontAwesomeIcon icon={faBars} /></button>
       </div>
       <ul>
         {userList.map(user => (
@@ -336,10 +340,11 @@ function ChatRoom() {
           <br />
           <div className='chat-actions'>
             <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
-              Add User
+              <FontAwesomeIcon icon={faUserPlus} /> 초대하기 
             </button>
             <button onClick={handleLeaveChat} className='cancel-button'>
-              Leave chat
+              나가기 &nbsp;&nbsp;&nbsp;&nbsp;
+            <FontAwesomeIcon icon={faArrowRightFromBracket} />
             </button>
           </div>
           <p className="footer">Tip 💡</p>
@@ -352,6 +357,7 @@ function ChatRoom() {
             style={{ display: 'block', margin: '20px auto' }}
             disabled={isNotificationSending || isNotificationSent}
           >
+            <FontAwesomeIcon icon={faEnvelope} /> &nbsp;
             {isNotificationSent ? '완료!' : '이메일 알림 보내기'}
           </button>
           <p className="footer">{isNotificationSending ? 'Sending...' : '채팅방에 있는 유저 모두에게 이메일 알림을 보냅니다'}</p>

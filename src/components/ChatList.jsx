@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faComments, faComment, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function ChatList() {
   const [chats, setChats] = useState(null);
@@ -108,19 +110,25 @@ function ChatList() {
 
   return (
     <>
-      <div className="container"> 
+      <div className="container">
         <div className="chat-actions">
-          <h2>Chats</h2> 
-          <button onClick={() => navigate('/find-user')}>New chat</button>
+          <h2>Chats</h2>
+          <button onClick={() => navigate('/find-user')}>
+            <span>
+            <FontAwesomeIcon icon={faComment} style={{ fontSize: '20px' }} />
+            </span>&nbsp;
+            <span>
+             <FontAwesomeIcon icon={faPlus} style={{ fontSize: '16px' }}/>
+             </span>
+          </button>
         </div>
-        <p className='small'>Logged in as {name}</p>
-
         <div style={{ height: '1px', backgroundColor: '#ddd', margin: '8px 0' }} />
-        <div id="chatList">
-        {chats === null ? (
-          <p className="loading">Loading...</p>
-          ) :
-          chats.length === 0 ? (
+        
+        {/* Chat list with fixed height and scrolling */}
+        <div id="chatList" style={{ flex: '1', overflowY: 'auto' }}>
+          {chats === null ? (
+            <p className="loading">Loading...</p>
+          ) : chats.length === 0 ? (
             <>
               <p className="empty-message">
                 No chats yet. Find a user and start a conversation!
@@ -182,10 +190,12 @@ function ChatList() {
             })
           )}
         </div>
-        <div style={{ display: "flex" }}>
+        
+        <div style={{ display: "flex", paddingTop: "20px" }}>
+          <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name}</span></p>
           <a href="/login" onClick={logout} className="logout-link" style={{ marginLeft: "auto" }}>
             Logout
-          </a>  
+          </a>
         </div>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>

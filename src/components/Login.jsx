@@ -29,7 +29,7 @@ function Login() {
           setTimeout(() => navigate('/chat-list'), 1000);
         })
         .catch(error => {
-          setStatus('Invalid email or password');
+          setStatus('Wrong email or password');
           console.error('Error:', error);
         });
     } else {
@@ -64,8 +64,8 @@ function Login() {
 
   return (
     <>
-      <div className="container">
-        <h2 style={{ textAlign: 'center' }}>Welcome !</h2>
+      <div className="login-container">
+        <h2 style={{ textAlign: 'center' }}>Let's Chat !</h2>
         <p className="welcome-text">Connect with friends instantly!</p>
         <div className="login-form">
           <input

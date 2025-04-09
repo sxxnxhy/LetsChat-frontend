@@ -47,12 +47,15 @@ button:hover {
 /* ========================================================================= */
 .container {
     max-width: 600px;
-    margin: 20px auto;
+    margin: 0 auto;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     padding: 20px;
-}
+    height: 83vh; /* Fixed height for the container */
+    display: flex;
+    flex-direction: column; /* Use flexbox to manage child elements */
+  }
 
 .chat-container {
     max-width: 800px;
@@ -64,6 +67,7 @@ button:hover {
     height: 83vh;
     display: flex;
     flex-direction: column;
+    
 }
 
 /* ========================================================================= */
@@ -156,6 +160,25 @@ button:hover {
 .logout-link:hover {
     text-decoration: underline;
 }
+#chatList {
+    flex: 1; /* Takes up remaining space in the flex container */
+    overflow-y: auto; /* Enables vertical scrolling */
+    padding-right: 5px; /* Optional: Adds some padding to avoid scrollbar overlap */
+  }
+  
+  /* Optional: Style the scrollbar for better aesthetics */
+  #chatList::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #chatList::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  #chatList::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 
 /* ========================================================================= */
 /* Chat Room */
@@ -317,8 +340,14 @@ button:hover {
 }
 
 .hamburger-icon:hover {
-    color: #0056b3;
-}
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    color: #0862f9;
+    transition: color 0.2s ease;
+  }
 
 .user-list-sidebar {
     position: absolute;
@@ -508,8 +537,18 @@ button:hover {
 }
 
 #userResults {
-    margin-top: 20px;
+    flex: 1; /* Takes up remaining space in the flex container */
+    overflow-y: auto; /* Enables vertical scrolling */
+    padding-right: 5px; /* Optional: Adds padding to avoid scrollbar overlap */
 }
+#userResults::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  #userResults::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 
 .user-result-item {
     display: flex;
@@ -556,6 +595,16 @@ button:hover {
 /* Login Page */
 /* ========================================================================= */
 
+.login-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Use flexbox to manage child elements */
+  }
 .login-form {
     display: flex;
     flex-direction: column;

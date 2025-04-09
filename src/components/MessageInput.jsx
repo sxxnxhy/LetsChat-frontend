@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
 function MessageInput({ sendMessage }) {
   const [messageInput, setMessageInput] = useState('');
@@ -22,7 +24,7 @@ function MessageInput({ sendMessage }) {
           if (e.key === 'Enter') handleSend();
         }}
       />
-      <button onClick={handleSend}>Send</button>
+      <button onClick={handleSend}><FontAwesomeIcon icon={faPaperPlane} /></button>
     </div>
   );
 }
