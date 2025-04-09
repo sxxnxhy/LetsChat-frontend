@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faArrowLeftLong, faComment, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function FindUser() {
   const [searchInput, setSearchInput] = useState('');
@@ -68,12 +68,12 @@ function FindUser() {
   return (
     <>
       <div className="container">
-        <h2>Search Users</h2>
+        <h2>대화상대 검색</h2>
         <div className="search-bar">
           <input
             type="text"
             id="userSearch"
-            placeholder="Search for a user..."
+            placeholder="검색할 이름을 입력해주세요"
             maxLength="255"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -81,6 +81,7 @@ function FindUser() {
           />
           <button onClick={searchUser}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
         </div>
+        <div className="user-divider"></div>
         <div id="userResults">
           {users.length === 0 ? (
             <p className='footer'>Please enter a username to search.</p>
@@ -107,7 +108,12 @@ function FindUser() {
                         }}
                         className="chat-link"
                       >
-                        Start new chat
+                                    <span>
+                                    <FontAwesomeIcon icon={faComment} style={{ fontSize: '20px', color: "#3b83fa"}} />
+                                    </span>&nbsp;
+                                    <span>
+                                     <FontAwesomeIcon icon={faPlus} style={{ fontSize: '16px', color: "#3b83fa"}}/>
+                                     </span>
                       </a>
                     </span>
                     <p className="user-action">{user.email}</p>

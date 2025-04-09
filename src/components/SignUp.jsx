@@ -15,11 +15,11 @@ function SignUp() {
 
   const sendVerificationCode = () => {
     if (!email) {
-      setVerificationStatus('Please enter an email first!');
+      setVerificationStatus('이메일을 입력해주세요!');
       return;
     }
 
-    setVerificationStatus('Sending verification code...');
+    setVerificationStatus('인증번호 전송 중...');
 
     fetch('/api/email/verification/send', {
       method: 'POST',
@@ -29,21 +29,21 @@ function SignUp() {
       .then(response => {
         if (response.ok) { // Status 200
           setIsCodeSent(true);
-          setVerificationStatus('Verification code sent!');
+          setVerificationStatus('인증번호 전송 완료!');
         } else if (response.status === 401) { // User already exists
-          setVerificationStatus('This email is already registered.');
+          setVerificationStatus('이미 존재하는 이메일입니다');
         } else { // Other unexpected statuses (e.g., 500)
-          setVerificationStatus('Failed to send verification code. Please try again.');
+          setVerificationStatus('인증번호 전송에 실패하였습니다');
         }
       })
       .catch(error => {
-        setVerificationStatus('Network error. Please check your connection.');
+        setVerificationStatus('잠시 후 다시 시도해주세요.');
         console.error('Network Error:', error);
       });
   };
 
   const resendVerificationCode = () => {
-    setVerificationStatus('Resending verification code...');
+    setVerificationStatus('인증번호 전송 중...');
     fetch('/api/email/verification/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -51,26 +51,26 @@ function SignUp() {
     })
       .then(response => {
         if (response.ok) {
-          setVerificationStatus('Verification code resent!');
+          setVerificationStatus('인증번호 재전송 완료! 메일이 보이지 않으면 스팸함을 확인해 주세요.');
         } else if (response.status === 401) {
-          setVerificationStatus('This email is already registered.');
+          setVerificationStatus('이미 존재하는 이메일입니다');
         } else {
-          setVerificationStatus('Failed to resend verification code. Please try again.');
+          setVerificationStatus('잠시 후 다시 시도해주세요');
         }
       })
       .catch(error => {
-        setVerificationStatus('Network error. Please check your connection.');
+        setVerificationStatus('잠시 후 다시 시도해주세요');
         console.error('Network Error:', error);
       });
   };
 
   const verifyCode = () => {
     if (!verificationCode) {
-      setVerificationStatus('Please enter the verification code!');
+      setVerificationStatus('인증번호를 입력해주세요!');
       return;
     }
 
-    setVerificationStatus('Verifying...');
+    setVerificationStatus('인증 중...');
 
     fetch('/api/email/verification/verify', {
       method: 'POST',
@@ -80,15 +80,16 @@ function SignUp() {
       .then(response => {
         if (response.ok) {
           setIsVerified(true);
-          setVerificationStatus('Email verified successfully!');
+          setVerificationStatus('이메일 인증이 완료되었습니다!');
+          setSignupStatus('');
         } else if (response.status === 400) {
-          setVerificationStatus('Invalid or expired code.');
+          setVerificationStatus('잘못된 인증번호 입니다');
         } else {
-          setVerificationStatus('Verification failed. Please try again.');
+          setVerificationStatus('잠시 후 다시 시도해주세요.');
         }
       })
       .catch(error => {
-        setVerificationStatus('Network error. Please check your connection.');
+        setVerificationStatus('잠시 후 다시 시도해주세요.');
         console.error('Error:', error);
       });
   };
@@ -97,54 +98,54 @@ function SignUp() {
     const nameRegex = /^[a-zA-Z가-힣\-.''][a-zA-Z가-힣\s\-.'']{0,99}$/;
 
     if (!isVerified) {
-      setSignupStatus('Please verify your email first!');
+      setSignupStatus('이메일 인증을 완료해주세요.');
       return;
     }
 
     if (password !== passwordConfirm) {
-      setSignupStatus('Please check your passwords');
+      setSignupStatus('비밀번호가 일치하지 않습니다.');
       return;
     }
 
     if (!nameRegex.test(name)) {
-      setSignupStatus("Name can only include Korean/English letters, spaces, - . ' and must be under 100 characters.");
+      setSignupStatus("이름은 한글, 영어, 특수문자 - . ' 만 사용할 수 있습니다");
       return;
     }
 
     if (email && name && password) {
-      setSignupStatus('Signing up...');
+      setSignupStatus('회원가입 중...');
       fetch('/api/user/sign-up', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, password: password, email: email }),
       })
         .then(response => {
-          if (!response.ok) throw new Error('Sign-up failed');
+          if (!response.ok) throw new Error('잠시 후 다시 시도해주세요');
           return response.json();
         })
         .then(user => {
-          setSignupStatus(`Sign up completed!, ${user.name}!`);
+          setSignupStatus(`${user.name}님 회원가입 완료!`);
           setTimeout(() => navigate('/login'), 1000);
         })
         .catch(error => {
-          setSignupStatus('Either this email is taken or invalid email. Please check your email');
+          setSignupStatus('이미 존재하는 이메일이거나 유효하지 않은 이메일입니다.');
           console.error('Error:', error);
         });
     } else {
-      setSignupStatus('Please check your email, name and password');
+      setSignupStatus('이름과 비밀번호를 확인해주세요. ');
     }
   };
 
   return (
     <>
-      <div className="container">
-        <h2>Sign-up</h2>
+      <div className="sign-up-container">
+        <h2>회원가입</h2>
         <div className="signup-form">
           <div className="email-section">
             <input
               type="email"
               id="email"
-              placeholder="Email"
+              placeholder="이메일"
               maxLength={100}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -156,7 +157,7 @@ function SignUp() {
                 className="verification-btn"
                 onClick={isCodeSent ? resendVerificationCode : sendVerificationCode}
               >
-                {isCodeSent ? 'Resend' : 'Send Verification Code'}
+                {isCodeSent ? '인증번호 재전송' : '인증번호 전송'}
               </button>
             )}
             {isCodeSent && !isVerified && (
@@ -164,7 +165,7 @@ function SignUp() {
                 <input
                   type="text"
                   id="verificationCode"
-                  placeholder="Verification Code"
+                  placeholder="인증번호"
                   maxLength={6}
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
@@ -174,16 +175,16 @@ function SignUp() {
                   className="verification-btn"
                   onClick={verifyCode}
                 >
-                  Verify
+                  인증하기
                 </button>
               </>
             )}
             {verificationStatus && (
               <p
                 className={`verification-status ${
-                  verificationStatus.includes('successfully') || verificationStatus.includes('sent') || verificationStatus.includes('resent')
+                  verificationStatus.includes('완료')  || verificationStatus.includes('재전송')
                     ? 'success'
-                    : verificationStatus.includes('failed') || verificationStatus.includes('Invalid') || verificationStatus.includes('error') || verificationStatus.includes('Please') || verificationStatus.includes('already')
+                    : verificationStatus.includes('실패') || verificationStatus.includes('입력') || verificationStatus.includes('잘못') || verificationStatus.includes('다시') || verificationStatus.includes('이미')
                     ? 'error'
                     : ''
                 }`}
@@ -198,26 +199,25 @@ function SignUp() {
           <input
             type="text"
             id="name"
-            placeholder="Name"
+            placeholder="이름"
             maxLength={100}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <p className="footer">
-            The name you enter will be displayed as your name in the chat.<br/><br/>
-            입력한 이름은 채팅방에서 이름으로 표시됩니다. 한글도 사용 가능합니다.
+            채팅방에서 이름으로 표시됩니다. 한글도 사용 가능합니다.<br/><br/>
           </p>
           <input
             type="password"
             id="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <input
             type="password"
             id="passwordConfirm"
-            placeholder="Confirm password"
+            placeholder="비밀번호 확인"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
           />
@@ -225,9 +225,9 @@ function SignUp() {
             <p
               id="signupStatus"
               className={`verification-status ${
-                signupStatus.includes('completed')
+                signupStatus.includes('회원가입 완료!')
                   ? 'success'
-                  : signupStatus.includes('Please') || signupStatus.includes('taken') || signupStatus.includes('invalid') || signupStatus.includes('Name')
+                  : signupStatus.includes('이름') || signupStatus.includes('일치') || signupStatus.includes('이메일') || signupStatus.includes('비밀번호')|| signupStatus.includes('잠시')
                   ? 'error'
                   : ''
               }`}
@@ -235,7 +235,7 @@ function SignUp() {
               {signupStatus}
             </p>
           )}
-          <button onClick={handleSignUp}>Register</button>
+          <button onClick={handleSignUp}>회원가입</button>
         </div>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>

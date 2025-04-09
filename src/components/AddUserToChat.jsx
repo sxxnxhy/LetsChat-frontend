@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faArrowLeftLong, faUserPlus, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 
 function AddUserToChat() {
   const [searchParams] = useSearchParams();
@@ -79,12 +79,12 @@ function AddUserToChat() {
   return (
     <>
       <div className="container">
-        <h2>Add User To Chat</h2>
+        <h2>초대하기</h2>
         <div className="search-bar">
           <input
             type="text"
             id="userSearch"
-            placeholder="Search for a user..."
+            placeholder="검색할 이름을 입력해주세요"
             maxLength="255"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -92,13 +92,14 @@ function AddUserToChat() {
           />
           <button onClick={searchUser}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
         </div>
+        <div className="user-divider"></div>
         <div id="userResults">
           {users.map(user => (
             <div className="user-result-item" key={user.userId}>
               <span className="user-name">
                 {user.name}
                 {user.isInChat ? (
-                  <p className="user-action">In chat</p>
+                  <p className="user-action"><FontAwesomeIcon icon={faUserCheck} /></p>
                 ) : (
                   <a
                     href="#"
@@ -108,7 +109,7 @@ function AddUserToChat() {
                     }}
                     className="chat-link"
                   >
-                    Add
+                    <FontAwesomeIcon icon={faUserPlus} />
                   </a>
                 )}
               </span>

@@ -52,7 +52,7 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     padding: 20px;
-    height: 83vh; /* Fixed height for the container */
+    height: 78.5vh; /* Fixed height for the container */
     display: flex;
     flex-direction: column; /* Use flexbox to manage child elements */
   }
@@ -276,7 +276,7 @@ button:hover {
     border-radius: 5px;
     font-size: 16px;
     outline: none;
-    width: 200px; /* Adjust width as needed */
+    width: 170px; /* Adjust width as needed */
 }
 
 /* Edit subject buttons */
@@ -441,8 +441,8 @@ button:hover {
     font-size: 14px;
     line-height: 1.4;
     display: inline-block;
-    word-break: break-all;       /* Breaks long continuous strings */
-    overflow-wrap: break-word;   /* Ensures compatibility */
+    word-break: break-word;              /* more consistent than break-all */
+    overflow-wrap: break-word;
 }
 
 .sent .message-bubble {
@@ -502,7 +502,7 @@ button:hover {
 .system-message-bubble {
     background-color: #f0f0f0;
     color: #888;
-    font-style: italic;
+    font-size: 12px;
     padding: 10px 20px;
     border-radius: 12px;
     display: inline-block;
@@ -553,7 +553,7 @@ button:hover {
 .user-result-item {
     display: flex;
     flex-direction: column;
-    padding: 10px 0;
+    padding: 3px 0;
 }
 
 .user-name {
@@ -566,18 +566,20 @@ button:hover {
 }
 
 .user-action {
-    font-size: 12px;
+    font-size: 14px;
     color: #777;
     margin-top: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 20px 0 0 ;
 }
 
 .chat-link {
-    color: #0862f9;
+    color: #3b83fa;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 16px;
+    padding: 0 20px 0 0 ;
 }
 
 .chat-link:hover {
@@ -638,7 +640,12 @@ button:hover {
     box-sizing: border-box;
   }
   .kakao-login-btn img {
-    width: 300px; /* adjust as needed */
+    width: 200px; /* adjust as needed */
+    height: auto;
+    cursor: pointer;
+  }
+  .google-login-btn img {
+    width: 200px; /* adjust as needed */
     height: auto;
     cursor: pointer;
   }
@@ -648,6 +655,16 @@ button:hover {
 /* ========================================================================= */
 /* Signup Page */
 /* ========================================================================= */
+.sign-up-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Use flexbox to manage child elements */
+  }
 
 .signup-form {
     display: flex;

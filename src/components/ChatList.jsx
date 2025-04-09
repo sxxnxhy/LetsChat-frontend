@@ -131,15 +131,12 @@ function ChatList() {
           ) : chats.length === 0 ? (
             <>
               <p className="empty-message">
-                No chats yet. Find a user and start a conversation!
-              </p>
-              <p className="empty-message">
                 아직 채팅이 없습니다. 사용자를 찾아 대화를 시작해 보세요!
               </p>
             </>
           ) : (
             chats.map(chat => {
-              let timeDisplay = 'new chat';
+              let timeDisplay = '메시지 없음';
               if (chat.lastMessageTime) {
                 const messageTime = new Date(chat.lastMessageTime);
                 const now = new Date();
@@ -149,11 +146,11 @@ function ChatList() {
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
                 if (diffMin < 60) {
-                  timeDisplay = diffMin < 1 ? 'just now' : `${diffMin} min ago`;
+                  timeDisplay = diffMin < 1 ? '방금' : `${diffMin}분 전`;
                 } else if (diffHours < 24) {
-                  timeDisplay = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+                  timeDisplay = diffHours === 1 ? '1시간 전' : `${diffHours}시간 전`;
                 } else if (diffDays <= 14) {
-                  timeDisplay = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+                  timeDisplay = diffDays === 1 ? '1일 전' : `${diffDays}일 전`;
                 } else {
                   timeDisplay = messageTime.toLocaleDateString('en-CA');
                 }
@@ -179,7 +176,7 @@ function ChatList() {
                   <p className="chat-list-last-message">
                     <span className="chat-list-last-message-text">
                       <Link to={`/chat-room?chatRoomId=${chat.chatRoomId}`} style={{ color: '#777' }}>
-                        {chat.lastMessage || 'No messages yet'}
+                        {chat.lastMessage || '대화를 시작해보세요!'}
                       </Link>
                     </span>
                     <span>{timeDisplay}</span>
@@ -191,14 +188,13 @@ function ChatList() {
           )}
         </div>
         
-        <div style={{ display: "flex", paddingTop: "20px" }}>
+        <div style={{ display: "flex", paddingTop: "18px" }}>
           <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name}</span></p>
           <a href="/login" onClick={logout} className="logout-link" style={{ marginLeft: "auto" }}>
             Logout
           </a>
         </div>
       </div>
-      <p className="footer">A chat service by Seunghyun Yoo.</p>
     </>
   );
 }

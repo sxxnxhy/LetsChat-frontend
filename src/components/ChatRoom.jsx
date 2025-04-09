@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import MessageInput from './MessageInput'; // Import the new component
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -29,9 +29,6 @@ function ChatRoom() {
   const messagesDivRef = useRef(null);
   const navigate = useNavigate();
 
-  console.log("렌더링됨: ", isActive)
-
-  // Sync isActiveRef with isActive whenever it changes
   useEffect(() => {
     isActiveRef.current = isActive;
   }, [isActive]);
@@ -165,12 +162,12 @@ function ChatRoom() {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => scrollToBottom());
     });
-    if (msgData.content.endsWith('left the chat')) {
-      const username = msgData.content.replace(/"(.+)" left the chat/, '$1'); 
+    if (msgData.content.endsWith('나갔습니다')) {
+      const username = msgData.content.replace(/"(.+)"님이 채팅에서 나갔습니다/, '$1'); 
       setUserList(prev => prev.filter(user => user.name !== username));
     }
-    if (/^".+" added by ".+"$/.test(msgData.content)) {
-      const username = msgData.content.replace(/^"(.+)" added by ".+"$/, '$1');
+    if (/^".+" 님이 ".+" 님을 추가했습니다$/.test(msgData.content)) {
+      const username = msgData.content.replace(/^".+" 님이 "(.+)" 님을 추가했습니다$/, '$1');
       setUserList(prev => [...prev, { name: username }]); 
     }
   };
@@ -229,7 +226,7 @@ function ChatRoom() {
   };
 
   const handleLeaveChat = async () => {
-    const confirmLeave = window.confirm("Are you sure you want to leave this chat?");
+    const confirmLeave = window.confirm("정말 채팅방을 나가시겠습니까?");
     if (!confirmLeave) return;
   
     try {
@@ -259,7 +256,7 @@ function ChatRoom() {
         setIsNotificationSent(true);
         setisNotificationSending(false);
       } else {
-        window.alert("Failed to send notification");
+        window.alert("이메일 전송 실패. 잠시 후 다시 시도해주세요.");
         setisNotificationSending(false);
       }
     } catch (error) {
@@ -290,7 +287,7 @@ function ChatRoom() {
           )}
         </h2>
         <div className="header-actions">
-          {/* <a href="/chat-list"><FontAwesomeIcon icon={faArrowLeft} /> Back to Chats</a> */}
+          <a href="/chat-list"><FontAwesomeIcon icon={faAngleLeft} /> back</a>
           <button onClick={() => setIsSidebarOpen(true)} className="hamburger-icon"><FontAwesomeIcon icon={faBars} /></button>
         </div>
       </div>
@@ -348,8 +345,8 @@ function ChatRoom() {
             </button>
           </div>
           <p className="footer">Tip 💡</p>
-          <p className="footer">Tap the chat name to rename it.</p>
           <p className="footer">채팅방 이름을 탭하여 변경할 수 있습니다.</p>
+          <p className="footer">Tap the chat name to rename it.</p>
           <br />
           <button
             className='verification-btn'
