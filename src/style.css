@@ -790,5 +790,20 @@ button:hover {
     margin-top: 0;
     text-align: end;
   }
+  .white-btn {
+    padding: 12px 20px;
+    border-radius: 20px;
+    background-color: white;
+    color: #0862f9;
+    border: 2px solid #0862f9;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .white-btn:hover {
+    background-color: #f0f4ff;
+  }
 
 

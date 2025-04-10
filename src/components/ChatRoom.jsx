@@ -287,7 +287,7 @@ function ChatRoom() {
           )}
         </h2>
         <div className="header-actions">
-          <a href="/chat-list"><FontAwesomeIcon icon={faAngleLeft} /> back</a>
+          <a href="/chat-list"><FontAwesomeIcon icon={faAngleLeft} /> 뒤로가기</a>
           <button onClick={() => setIsSidebarOpen(true)} className="hamburger-icon"><FontAwesomeIcon icon={faBars} /></button>
         </div>
       </div>

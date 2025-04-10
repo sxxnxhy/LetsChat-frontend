@@ -118,8 +118,8 @@ function AddUserToChat() {
             </div>
           ))}
         </div>
-        <button onClick={() => navigate(`/chat-room?chatRoomId=${chatRoomId}`)}>
-        <FontAwesomeIcon icon={faArrowLeftLong} /> Back to Chat
+        <button onClick={() => navigate(`/chat-room?chatRoomId=${chatRoomId}`)} className='white-btn'>
+        <FontAwesomeIcon icon={faArrowLeftLong} /> 뒤로가기
         </button>
       </div>
       <p className="footer">A chat service by Seunghyun Yoo.</p>
