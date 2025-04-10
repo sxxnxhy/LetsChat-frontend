@@ -76,7 +76,7 @@ button:hover {
 .chat-list-item {
     display: flex;
     flex-direction: column;
-    padding: 9px 0;
+    padding: 8px 0;
     transition: opacity 0.2s ease; /* Smooth fade for individual items */
 }
 

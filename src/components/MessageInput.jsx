@@ -16,7 +16,7 @@ function MessageInput({ sendMessage }) {
     <div className="chat-input">
       <input
         type="text"
-        placeholder="Type a message..."
+        placeholder="메시지 입력"
         maxLength="3000"
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}

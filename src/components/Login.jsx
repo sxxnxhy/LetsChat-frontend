@@ -89,7 +89,7 @@ function Login() {
           <input
             type="email"
             id="email"
-            placeholder="Email"
+            placeholder="이메일"
             maxLength="255"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -98,7 +98,7 @@ function Login() {
           <input
             type="password"
             id="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             maxLength="255"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
