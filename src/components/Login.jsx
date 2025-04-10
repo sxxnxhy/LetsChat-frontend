@@ -104,7 +104,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyUp={handleKeyUp}
           />
-          <button onClick={handleLogin}>Login</button>
+          <button onClick={handleLogin}>로그인</button>
           <p id="loginStatus">{status}</p>
           <a onClick={handleGoogleLogin} className="google-login-btn">
             <img src="../../images/web_light_sq_SI@4x.png" />
@@ -113,7 +113,7 @@ function Login() {
             <img src="../../images/kakao_login_large_narrow.png" />
           </a>
           <p className="signup-prompt">
-            새로운 회원이신가요? <a href="/sign-up"> 회원가입</a>
+          지금 가입하고 시작해보세요!  <a href="/sign-up"> 회원가입</a>
           </p>
         </div>
         <br />

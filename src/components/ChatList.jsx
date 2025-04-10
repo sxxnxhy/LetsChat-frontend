@@ -15,7 +15,7 @@ function ChatList() {
 
     const userId = localStorage.getItem('userId');
     if (!userId) {
-      fetch('/api/user/get-user-id', {
+      fetch('/api/user/id', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -79,7 +79,7 @@ function ChatList() {
       });
   };
   const loadUserName = () => {
-    fetch('/api/chat-list/get-name', {
+    fetch('/api/chat-list/name', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -112,7 +112,7 @@ function ChatList() {
     <>
       <div className="container">
         <div className="chat-actions">
-          <h2>Chats</h2>
+          <h2>채팅</h2>
           <button onClick={() => navigate('/find-user')}>
             <span>
             <FontAwesomeIcon icon={faComment} style={{ fontSize: '20px' }} />
