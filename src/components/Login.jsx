@@ -56,7 +56,7 @@ function Login() {
   };
 
   const handleKakaoLogin = () => {
-    fetch('/api/oauth/kakao', {
+    fetch('/api/oauth/kakao/login', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     })

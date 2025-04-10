@@ -76,7 +76,7 @@ button:hover {
 .chat-list-item {
     display: flex;
     flex-direction: column;
-    padding: 10px 0;
+    padding: 9px 0;
     transition: opacity 0.2s ease; /* Smooth fade for individual items */
 }
 
@@ -163,7 +163,7 @@ button:hover {
 #chatList {
     flex: 1; /* Takes up remaining space in the flex container */
     overflow-y: auto; /* Enables vertical scrolling */
-    padding-right: 5px; /* Optional: Adds some padding to avoid scrollbar overlap */
+    padding-right: 8px; /* Optional: Adds some padding to avoid scrollbar overlap */
   }
   
   /* Optional: Style the scrollbar for better aesthetics */
@@ -172,7 +172,7 @@ button:hover {
   }
   
   #chatList::-webkit-scrollbar-thumb {
-    background: #888;
+    background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
   

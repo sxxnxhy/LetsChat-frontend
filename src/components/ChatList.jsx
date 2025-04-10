@@ -99,7 +99,7 @@ function ChatList() {
     event.preventDefault();
     fetch('/api/user/logout', { method: 'POST' })
       .then(() => 
-        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=6bb806108f6f40c79a40d5fc93063fd5&logout_redirect_uri=https://syoo.shop/login`
+        navigate('/login')
     );
   };
 
@@ -122,7 +122,7 @@ function ChatList() {
              </span>
           </button>
         </div>
-        <div style={{ height: '1px', backgroundColor: '#ddd', margin: '8px 0' }} />
+        <hr style={{ width: "100%", border: "1px solid #ccc", margin: "0", boxSizing: "border-box" }} />
         
         {/* Chat list with fixed height and scrolling */}
         <div id="chatList" style={{ flex: '1', overflowY: 'auto' }}>
@@ -187,7 +187,7 @@ function ChatList() {
             })
           )}
         </div>
-        
+        <hr style={{ width: "100%", border: "1px solid #ccc", margin: "0", boxSizing: "border-box" }} />
         <div style={{ display: "flex", paddingTop: "18px" }}>
           <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name}</span></p>
           <a href="/login" onClick={logout} className="logout-link" style={{ marginLeft: "auto" }}>
