@@ -169,13 +169,13 @@ function ChatList() {
 
               return (
                 <div className="chat-list-item" key={chat.chatRoomId}>
-                  <Link to={`/chat-room?chatRoomId=${chat.chatRoomId}`} className="chat-list-subject">
+                  <Link to={`/chat-room?cri=${chat.chatRoomId}`} className="chat-list-subject">
                     {chat.chatRoomName}
                     {unreadMark}
                   </Link>
                   <p className="chat-list-last-message">
                     <span className="chat-list-last-message-text">
-                      <Link to={`/chat-room?chatRoomId=${chat.chatRoomId}`} style={{ color: '#777' }}>
+                      <Link to={`/chat-room?cri=${chat.chatRoomId}`} style={{ color: '#777' }}>
                         {chat.lastMessage || '대화를 시작해보세요!'}
                       </Link>
                     </span>

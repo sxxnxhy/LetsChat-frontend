@@ -50,7 +50,7 @@ function FindUser() {
         return response.json();
       })
       .then(data => {
-        navigate(`/chat-room?chatRoomId=${data.chatRoomId}`);
+        navigate(`/chat-room?cri=${data.chatRoomId}`);
       })
       .catch(error => {
         console.error('Error starting chat:', error);

@@ -5,7 +5,7 @@ import { faMagnifyingGlass, faArrowLeftLong, faUserPlus, faUserCheck } from '@fo
 
 function AddUserToChat() {
   const [searchParams] = useSearchParams();
-  const chatRoomId = searchParams.get('chatRoomId');
+  const chatRoomId = searchParams.get('cri');
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
@@ -118,7 +118,7 @@ function AddUserToChat() {
             </div>
           ))}
         </div>
-        <button onClick={() => navigate(`/chat-room?chatRoomId=${chatRoomId}`)} className='white-btn'>
+        <button onClick={() => navigate(`/chat-room?cri=${chatRoomId}`)} className='white-btn'>
         <FontAwesomeIcon icon={faArrowLeftLong} /> 뒤로가기
         </button>
       </div>

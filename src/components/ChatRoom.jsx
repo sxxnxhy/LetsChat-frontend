@@ -9,7 +9,7 @@ import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars, faAngleLeft } 
 
 function ChatRoom() {
   const [searchParams] = useSearchParams();
-  const chatRoomId = searchParams.get('chatRoomId');
+  const chatRoomId = searchParams.get('cri');
   const [messages, setMessages] = useState([]);
   const [userList, setUserList] = useState([]);
   const [chatRoomName, setChatRoomName] = useState('');
@@ -336,7 +336,7 @@ function ChatRoom() {
         <div className="sidebar-footer">
           <br />
           <div className='chat-actions'>
-            <button onClick={() => navigate(`/add-user-to-chat?chatRoomId=${chatRoomId}`)} className="add-user-button">
+            <button onClick={() => navigate(`/add-user-to-chat?cri=${chatRoomId}`)} className="add-user-button">
               <FontAwesomeIcon icon={faUserPlus} /> 초대하기 
             </button>
             <button onClick={handleLeaveChat} className='cancel-button'>
