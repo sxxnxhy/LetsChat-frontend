@@ -34,7 +34,7 @@ function UserSettings() {
 
     if (name && password) {
       setUpdateStatus('업데이트 중...');
-      fetch('/api/user/update', {
+      fetch('/api/user/info', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, password: password}),
