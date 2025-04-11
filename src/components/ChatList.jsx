@@ -195,7 +195,7 @@ function ChatList() {
         </div>
         <hr style={{width: "100%", border: "none", borderTop: "2px solid #ccc", margin: "0", boxSizing: "border-box", height: "1px"}}/>
         <div style={{ display: "flex", paddingTop: "18px" }}>
-          <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name} </span></p>
+          <p className="small" title={name} style={{color: "#0862f9",maxWidth: "60%",whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",}}>사용자 이름: <span style={{ color: "#777"}}>{name} </span></p>
           <span style={{ marginLeft: "auto" }}>
             <a className="logout-link" style={{ color: '#0862f9', marginRight: '20px', cursor: 'pointer' }} onClick={handleSettingsClick}>
               <FontAwesomeIcon icon={faGear}/>설정
