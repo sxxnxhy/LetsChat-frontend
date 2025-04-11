@@ -1,16 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
 function UserSettings() {
-
-  const { state } = useLocation();
-  const { email, setEmail } = state;
-  const [name, setName] = useState(state.name);
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [updateStatus, setUpdateStatus] = useState(''); 
-  const navigate = useNavigate();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const state = location.state;
+    useEffect(() => {
+      if (!state) {
+        navigate('/chat-list');
+      }
+    }, [state, navigate]);
+    if (!state) return null;
+  
+    const [email, setEmail] = useState(state.email);
+    const [name, setName] = useState(state.name);
+    const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
+    const [updateStatus, setUpdateStatus] = useState('');
 
   const handleUpdate = () => {
     const nameRegex = /^[a-zA-Z가-힣\-.''][a-zA-Z가-힣\s\-.'']{0,99}$/;
