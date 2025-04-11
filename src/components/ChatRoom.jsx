@@ -44,27 +44,42 @@ function ChatRoom() {
       return;
     }
 
-    loadChatHistory(0);
 
-    const stompClient = new Client({
-      brokerURL: "/websocket",
-    });
-    stompClient.activate();
-    stompClientRef.current = stompClient;
+    const initializeChat = () => {
+      try {
+        loadChatHistory(0);
 
-    stompClient.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
-      stompClient.subscribe(`/topic/private-chat/${chatRoomId}`, (message) => {
-        if (!localStorage.getItem('userId')) {
-          navigate('/login');
-        }
-        const msgData = JSON.parse(message.body);
-        if (msgData.senderId == 0 || msgData.senderId == null) {
-          handleSubjectChange(msgData);
-        } else {
-          handleUserMessage(msgData);
-        }
-      });
+        const stompClient = new Client({
+          brokerURL: "/websocket",
+        });
+        stompClient.activate();
+        stompClientRef.current = stompClient;
+
+        stompClient.onConnect = (frame) => {
+          console.log('Connected: ' + frame);
+          stompClient.subscribe(`/topic/private-chat/${chatRoomId}`, (message) => {
+            if (!localStorage.getItem('userId')) {
+              navigate('/login');
+            }
+            const msgData = JSON.parse(message.body);
+            if (msgData.senderId == 0 || msgData.senderId == null) {
+              handleSubjectChange(msgData);
+            } else {
+              handleUserMessage(msgData);
+            }
+          });
+        };
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        // Optionally handle the error, e.g., navigate to an error page
+      }
+    };
+    initializeChat();
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
+        stompClientRef.current = null;
+      }
     };
   }, [chatRoomId]);
 

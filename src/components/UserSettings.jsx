@@ -68,7 +68,7 @@ function UserSettings() {
       <div className="sign-up-container">
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <h2>회원정보 수정</h2>
-          <a href="/login" style={{ marginLeft: 'auto' }}>
+          <a href="/chat-list" style={{ marginLeft: 'auto' }}>
             <FontAwesomeIcon icon={faAngleLeft} /> 뒤로가기
           </a>
         </div>
