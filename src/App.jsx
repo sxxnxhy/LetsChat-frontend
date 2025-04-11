@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Index from './components/Index';
 import Login from './components/Login';
 import ChatList from './components/ChatList';
@@ -11,15 +12,18 @@ import "./ErrorPage.css";
 
 
 const NotFound = () => {
+  const navigate = useNavigate();
+
   return (
     <div className='error-page'>
       <div className="error-container">
         <div className="error-icon">⚠️</div>
         <h1 className="error-code">404</h1>
-        <p className="error-message">Oops! The page you're looking for doesn't exist.</p>
+        <p className="error-message">요청하신 페이지를 찾을 수 없습니다.</p>
         <p className="error-details">
-          It seems like you took a wrong turn. Please check the URL or go back to the homepage.
+        페이지가 존재하지 않거나 이동되었을 수 있습니다. 입력하신 주소가 정확한지 확인해 주세요.
         </p>
+        <a className='logout-link' onClick={() => navigate('/chat-list')} style={{cursor: 'pointer' }}>홈페이지로 돌아가기</a>
       </div>
     </div>
   );
