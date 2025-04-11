@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+
 
 function SignUp() {
   const [email, setEmail] = useState('');
@@ -139,7 +142,12 @@ function SignUp() {
   return (
     <>
       <div className="sign-up-container">
-        <h2>회원가입</h2>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2>회원가입</h2>
+          <a href="/login" style={{ marginLeft: 'auto' }}>
+            <FontAwesomeIcon icon={faAngleLeft} /> 뒤로가기
+          </a>
+        </div>
         <div className="signup-form">
           <div className="email-section">
             <input

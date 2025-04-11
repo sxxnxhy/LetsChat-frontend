@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
 function UserSettings() {
     const location = useLocation();
@@ -64,7 +66,12 @@ function UserSettings() {
   return (
     <>
       <div className="sign-up-container">
-        <h2>개인정보 수정</h2>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2>회원정보 수정</h2>
+          <a href="/login" style={{ marginLeft: 'auto' }}>
+            <FontAwesomeIcon icon={faAngleLeft} /> 뒤로가기
+          </a>
+        </div>
         <div className="signup-form">
           <div className="email-section">
             <input

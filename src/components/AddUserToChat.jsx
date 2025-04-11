@@ -20,7 +20,9 @@ function AddUserToChat() {
   
 
   const searchUser = () => {
-    if (searchInput) {
+    const trimmed = searchInput.trim();
+    if (trimmed && trimmed !== '%') {
+    // if (searchInput) {
       fetch(`/api/chat-room/search?keyword=${encodeURIComponent(searchInput)}&chatRoomId=${chatRoomId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },

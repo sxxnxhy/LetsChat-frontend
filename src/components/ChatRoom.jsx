@@ -55,6 +55,9 @@ function ChatRoom() {
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame);
       stompClient.subscribe(`/topic/private-chat/${chatRoomId}`, (message) => {
+        if (!localStorage.getItem('userId')) {
+          navigate('/login');
+        }
         const msgData = JSON.parse(message.body);
         if (msgData.senderId == 0 || msgData.senderId == null) {
           handleSubjectChange(msgData);
@@ -149,10 +152,15 @@ function ChatRoom() {
 
   const sendMessage = (content) => {
     if (!isLoading && content.trim()) {
-      stompClientRef.current.publish({
-        destination: '/app/private-message',
-        body: JSON.stringify({ chatRoomId, senderId: localStorage.getItem('userId'), content }),
-      });
+      if (!localStorage.getItem('userId')) {
+        navigate('/login');
+      }
+      else {
+        stompClientRef.current.publish({
+          destination: '/app/private-message',
+          body: JSON.stringify({ chatRoomId, senderId: localStorage.getItem('userId'), content }),
+        });
+      }
     }
   };
 
@@ -165,6 +173,9 @@ function ChatRoom() {
     if (msgData.content.endsWith('나갔습니다')) {
       const username = msgData.content.replace(/"(.+)"님이 채팅에서 나갔습니다/, '$1'); 
       setUserList(prev => prev.filter(user => user.name !== username));
+      if (msgData.leftUserId === Number(localStorage.getItem('userId'))) {
+        navigate('/chat-list')
+      }
     }
     if (/^".+" 님이 ".+" 님을 추가했습니다$/.test(msgData.content)) {
       const username = msgData.content.replace(/^".+" 님이 "(.+)" 님을 추가했습니다$/, '$1');

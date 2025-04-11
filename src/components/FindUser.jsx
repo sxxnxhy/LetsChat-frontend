@@ -17,7 +17,9 @@ function FindUser() {
   }, []);
 
   const searchUser = () => {
-    if (searchInput) {
+    const trimmed = searchInput.trim();
+    if (trimmed && trimmed !== '%') {
+    // if (searchInput) {
       fetch(`/api/user/search?keyword=${encodeURIComponent(searchInput)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
