@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faComment, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faRightFromBracket, faComment, faPlus, faGear } from '@fortawesome/free-solid-svg-icons';
 
 function ChatList() {
   const [chats, setChats] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0); // Track unread messages
   const originalTitleRef = useRef(document.title); // Store the original title
+  const [email, setEmail] = useState([]);
   const [name, setName] = useState([]);
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ function ChatList() {
     }
 
     loadChatList();
-    loadUserName();
+    loadUserNameAndEmail();
     const stompClient = new Client({
       brokerURL: "/websocket",
     });
@@ -78,8 +79,8 @@ function ChatList() {
         navigate('/login');
       });
   };
-  const loadUserName = () => {
-    fetch('/api/chat-list/name', {
+  const loadUserNameAndEmail = () => {
+    fetch('/api/chat-list/name-and-email', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -87,8 +88,9 @@ function ChatList() {
         if (!response.ok) throw new Error('Failed to get: ' + response.status);
         return response.json();
       })
-      .then(name => {
-        setName(name.name);
+      .then(user => {
+        setName(user.name);
+        setEmail(user.email);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -101,6 +103,10 @@ function ChatList() {
       .then(() => 
         navigate('/login')
     );
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/user-settings', { state: { name, email } });
   };
 
   window.addEventListener('focus', () => {
@@ -189,10 +195,15 @@ function ChatList() {
         </div>
         <hr style={{width: "100%", border: "none", borderTop: "2px solid #ccc", margin: "0", boxSizing: "border-box", height: "1px"}}/>
         <div style={{ display: "flex", paddingTop: "18px" }}>
-          <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name}</span></p>
-          <a href="/login" onClick={logout} className="logout-link" style={{ marginLeft: "auto" }}>
-            로그아웃
-          </a>
+          <p className="small" style={{ color: "#0862f9"}}>사용자 이름: <span style={{ color: "#777"}}>{name} </span></p>
+          <span style={{ marginLeft: "auto" }}>
+            <a className="logout-link" style={{ color: '#0862f9', marginRight: '20px', cursor: 'pointer' }} onClick={handleSettingsClick}>
+              <FontAwesomeIcon icon={faGear}/>설정
+            </a>
+            <a href="/login" onClick={logout} className="logout-link" >
+              <FontAwesomeIcon icon={faRightFromBracket} />로그아웃
+            </a>
+          </span>
         </div>
       </div>
     </>
