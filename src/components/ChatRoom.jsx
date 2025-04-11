@@ -194,7 +194,7 @@ function ChatRoom() {
     }
     if (/^".+" 님이 ".+" 님을 추가했습니다$/.test(msgData.content)) {
       const username = msgData.content.replace(/^".+" 님이 "(.+)" 님을 추가했습니다$/, '$1');
-      setUserList(prev => [...prev, { name: username }]); 
+      setUserList(prev => [...prev, { name: username , email: msgData.addedUserEmail}]); 
     }
   };
 
