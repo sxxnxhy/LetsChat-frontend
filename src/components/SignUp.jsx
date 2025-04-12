@@ -13,6 +13,7 @@ function SignUp() {
   const [signupStatus, setSignupStatus] = useState(''); // For signup-related messages
   const [verificationCode, setVerificationCode] = useState('');
   const [isCodeSent, setIsCodeSent] = useState(false);
+  const [isEmailDisabled, setIsEmailDisabled] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ function SignUp() {
       setVerificationStatus('이메일을 입력해주세요!');
       return;
     }
-
+    setIsEmailDisabled(true);
     setVerificationStatus('인증번호 전송 중...');
 
     fetch('/api/email/verification/send', {
@@ -33,19 +34,24 @@ function SignUp() {
         if (response.ok) { // Status 200
           setIsCodeSent(true);
           setVerificationStatus('인증번호 전송 완료!');
+          setIsEmailDisabled(false);
         } else if (response.status === 401) { // User already exists
           setVerificationStatus('이미 존재하는 이메일입니다');
+          setIsEmailDisabled(false);
         } else { // Other unexpected statuses (e.g., 500)
           setVerificationStatus('인증번호 전송에 실패하였습니다');
+          setIsEmailDisabled(false);
         }
       })
       .catch(error => {
         setVerificationStatus('잠시 후 다시 시도해주세요.');
+        setIsEmailDisabled(false);
         console.error('Network Error:', error);
       });
   };
 
   const resendVerificationCode = () => {
+    setIsEmailDisabled(true);
     setVerificationStatus('인증번호 전송 중...');
     fetch('/api/email/verification/send', {
       method: 'POST',
@@ -55,13 +61,17 @@ function SignUp() {
       .then(response => {
         if (response.ok) {
           setVerificationStatus('인증번호 재전송 완료! 메일이 보이지 않으면 스팸함을 확인해 주세요.');
+          setIsEmailDisabled(false);
         } else if (response.status === 401) {
           setVerificationStatus('이미 존재하는 이메일입니다');
+          setIsEmailDisabled(false);
         } else {
-          setVerificationStatus('잠시 후 다시 시도해주세요');
+          setVerificationStatus('잠시 후 다시 시도해주세요')
+          setIsEmailDisabled(false);
         }
       })
       .catch(error => {
+        setIsEmailDisabled(false);
         setVerificationStatus('잠시 후 다시 시도해주세요');
         console.error('Network Error:', error);
       });
@@ -72,7 +82,7 @@ function SignUp() {
       setVerificationStatus('인증번호를 입력해주세요!');
       return;
     }
-
+    setIsEmailDisabled(true);
     setVerificationStatus('인증 중...');
 
     fetch('/api/email/verification/verify', {
@@ -87,12 +97,15 @@ function SignUp() {
           setSignupStatus('');
         } else if (response.status === 400) {
           setVerificationStatus('잘못된 인증번호 입니다');
+          setIsEmailDisabled(false);
         } else {
           setVerificationStatus('잠시 후 다시 시도해주세요.');
+          setIsEmailDisabled(false);
         }
       })
       .catch(error => {
         setVerificationStatus('잠시 후 다시 시도해주세요.');
+        setIsEmailDisabled(false);
         console.error('Error:', error);
       });
   };
@@ -164,6 +177,7 @@ function SignUp() {
                 type="button"
                 className="verification-btn"
                 onClick={isCodeSent ? resendVerificationCode : sendVerificationCode}
+                disabled={isEmailDisabled}
               >
                 {isCodeSent ? '인증번호 재전송' : '인증번호 전송'}
               </button>

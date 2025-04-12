@@ -23,7 +23,10 @@ function UserSettings() {
 
   const handleUpdate = () => {
     const nameRegex = /^[a-zA-Z가-힣\-.''][a-zA-Z가-힣\s\-.'']{0,99}$/;
-
+    if (!password) {
+      setUpdateStatus('비밀번호를 입력해주세요.')
+      return;
+    }
     if (password !== passwordConfirm) {
       setUpdateStatus('비밀번호가 일치하지 않습니다.');
       return;
@@ -116,7 +119,7 @@ function UserSettings() {
               className={`verification-status ${
                 updateStatus.includes('완료!') 
                   ? 'success'
-                  : updateStatus.includes('이름') || updateStatus.includes('유효') || updateStatus.includes('같은') 
+                  : updateStatus.includes('이름') || updateStatus.includes('유효') || updateStatus.includes('같은')  || updateStatus.includes('비밀번호')
                   ? 'error'
                   : ''
               }`}
