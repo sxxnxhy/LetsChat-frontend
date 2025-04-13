@@ -275,11 +275,16 @@ function ChatRoom() {
     setisNotificationSending(true);
 
     try {
-      const response = await fetch(`/api/email/notification/send?chatRoomId=${chatRoomId}`, {
-        method: "POST"
+      const response = await fetch("/api/email/notification/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ "chatRoomId": chatRoomId })
       });
       if (response.ok) {
         setIsNotificationSent(true);
+        setisNotificationSending(false);
+      } else if (response.status === 429) {
+        window.alert("이메일 전송 실패. 알림은 3분에 한 번씩 보낼 수 있습니다.")
         setisNotificationSending(false);
       } else {
         window.alert("이메일 전송 실패. 잠시 후 다시 시도해주세요.");
@@ -383,7 +388,9 @@ function ChatRoom() {
             <FontAwesomeIcon icon={faEnvelope} /> &nbsp;
             {isNotificationSent ? '완료!' : '이메일 알림 보내기'}
           </button>
-          <p className="footer">{isNotificationSending ? 'Sending...' : '채팅방에 있는 유저 모두에게 이메일 알림을 보냅니다'}</p>
+          <p className="footer">
+            {isNotificationSending ? '이메일 전송 중...' : isNotificationSent ? '알림 전송 완료!' : '채팅방에 있는 유저 모두에게 이메일 알림을 보냅니다'}
+          </p>          
           <br/>
         </div>
       </ul>

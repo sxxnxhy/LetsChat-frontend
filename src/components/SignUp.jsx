@@ -27,8 +27,8 @@ function SignUp() {
 
     fetch('/api/email/verification/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `email=${encodeURIComponent(email)}`,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email}),
     })
       .then(response => {
         if (response.ok) { // Status 200
@@ -55,8 +55,8 @@ function SignUp() {
     setVerificationStatus('인증번호 전송 중...');
     fetch('/api/email/verification/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `email=${encodeURIComponent(email)}`,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email}),
     })
       .then(response => {
         if (response.ok) {
@@ -64,6 +64,9 @@ function SignUp() {
           setIsEmailDisabled(false);
         } else if (response.status === 401) {
           setVerificationStatus('이미 존재하는 이메일입니다');
+          setIsEmailDisabled(false);
+        } else if (response.status === 429) {
+          setVerificationStatus('5분 후 다시 시도해주세요.')
           setIsEmailDisabled(false);
         } else {
           setVerificationStatus('잠시 후 다시 시도해주세요')
