@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
-import MessageInput from './MessageInput'; // Import the new component
+import MessageInput from './MessageInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -71,11 +71,16 @@ function ChatRoom() {
         };
       } catch (error) {
         console.error('Error loading chat history:', error);
-        // Optionally handle the error, e.g., navigate to an error page
       }
     };
     initializeChat();
+    const checkUserIdInterval = setInterval(() => {
+      if (!localStorage.getItem('userId')) {
+        navigate('/chat-list');
+      }
+    }, 1000);
     return () => {
+      clearInterval(checkUserIdInterval);
       if (stompClientRef.current) {
         stompClientRef.current.deactivate();
         stompClientRef.current = null;
