@@ -4,6 +4,7 @@ import { Client } from '@stomp/stompjs';
 import MessageInput from './MessageInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faUserPlus, faEnvelope, faBars, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import ReactLinkify from 'react-linkify';
 
 
 
@@ -344,7 +345,23 @@ function ChatRoom() {
             ) : (
               <>
                 {msg.senderId != localStorage.getItem('userId') && <div className="sender-name">{msg.senderName}</div>}
-                <div className="message-bubble">{msg.content}</div>
+                <div className="message-bubble">
+                  <ReactLinkify
+                    componentDecorator={(decoratedHref, decoratedText, key) => (
+                      <a
+                        href={decoratedHref}
+                        key={key}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="message-link"
+                      >
+                        {decoratedText}
+                      </a>
+                    )}
+                  >
+                    {msg.content}
+                  </ReactLinkify>
+                </div>
                 <div className="message-time">
                   {new Date(msg.enrolledAt).toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })}
                 </div>

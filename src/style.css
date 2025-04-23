@@ -441,7 +441,7 @@ button:hover {
     font-size: 14px;
     line-height: 1.4;
     display: inline-block;
-    word-break: break-word;              /* more consistent than break-all */
+    word-break: break-word;              
     overflow-wrap: break-word;
 }
 
@@ -452,6 +452,10 @@ button:hover {
     float: right;
     margin-bottom: 2px;
 }
+.sent .message-link {
+    color: white; /* Bootstrap primary color or your preferred color */
+    text-decoration: underline;
+  }
 
 .sent {
     float: right;
@@ -462,6 +466,10 @@ button:hover {
     color: #333;
     border-bottom-left-radius: 4px;
 }
+.received .message-link {
+    color: #333; /* Bootstrap primary color or your preferred color */
+    text-decoration: underline;
+  }
 
 .received {
     float: left;
