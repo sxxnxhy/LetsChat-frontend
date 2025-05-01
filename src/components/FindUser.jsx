@@ -34,7 +34,7 @@ function FindUser() {
         .catch(error => {
           console.error('Error:', error);
           setUsers([]);
-          setTimeout(() => navigate('/login'), 2000);
+          setTimeout(() => navigate('/chat-list'), 2000);
         });
     } else {
       setUsers([]);

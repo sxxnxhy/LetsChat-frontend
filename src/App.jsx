@@ -8,6 +8,7 @@ import ChatRoom from './components/ChatRoom';
 import AddUserToChat from './components/AddUserToChat';
 import SignUp from './components/SignUp';
 import UserSettings from './components/UserSettings'
+import Call from './components/Call';
 import "./ErrorPage.css";
 
 
@@ -41,6 +42,7 @@ function App() {
         <Route path="/add-user-to-chat" element={<AddUserToChat />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/user-settings" element={<UserSettings />} />
+        <Route path="/call" element={<Call />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

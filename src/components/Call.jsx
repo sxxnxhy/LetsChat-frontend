@@ -1,0 +1,443 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Client } from '@stomp/stompjs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faArrowLeftLong, faPhone } from '@fortawesome/free-solid-svg-icons';
+
+function Call() {
+  const [searchInput, setSearchInput] = useState('');
+  const [users, setUsers] = useState([]);
+  const [incomingCall, setIncomingCall] = useState(null);
+  const [targetUserId, setTargetUserId] = useState(null);
+  const [targetUserName, setTargetUserName] = useState(null);
+  const targetUserIdRef = useRef(null);
+  const navigate = useNavigate();
+  const stompClientRef = useRef(null);
+  const peerConnectionRef = useRef(null);
+  const localAudioRef = useRef(null);
+  const remoteAudioRef = useRef(null);
+  const userId = localStorage.getItem('userId');
+  const iceCandidateBuffer = useRef([]);
+
+  useEffect(() => {
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
+    const stompClient = new Client({
+      brokerURL: '/websocket',
+      onConnect: () => {
+        console.log('STOMP Connected');
+        stompClient.subscribe(`/queue/call/incoming/${userId}`, (message) => {
+          try {
+            const notification = JSON.parse(message.body);
+            console.log('Incoming call:', notification);
+            setIncomingCall(notification);
+            setTargetUserName(notification.name)
+          } catch (error) {
+            console.error('Error parsing incoming call:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/accepted/${userId}`, (message) => {
+          try {
+            const notification = JSON.parse(message.body);
+            console.log('Call accepted by:', notification);
+            handleCallAccepted(notification);
+          } catch (error) {
+            console.error('Error parsing call accepted:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/rejected/${userId}`, (message) => {
+          console.log('Call rejected');
+          setTargetUserId(null);
+          setIncomingCall(null);
+          alert('Call was rejected.');
+        });
+        stompClient.subscribe(`/queue/call/offer/${userId}`, (message) => {
+          try {
+            const signal = JSON.parse(message.body);
+            console.log('Received offer:', signal);
+            handleOffer(signal);
+          } catch (error) {
+            console.error('Error parsing offer:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/answer/${userId}`, (message) => {
+          try {
+            const signal = JSON.parse(message.body);
+            console.log('Received answer:', signal);
+            handleAnswer(signal);
+          } catch (error) {
+            console.error('Error parsing answer:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/ice-candidate/${userId}`, (message) => {
+          try {
+            const signal = JSON.parse(message.body);
+            console.log('Received ICE candidate:', signal);
+            handleIceCandidate(signal);
+          } catch (error) {
+            console.error('Error parsing ICE candidate:', error);
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error('STOMP Error:', frame);
+      },
+      onWebSocketError: (error) => {
+        console.error('WebSocket Error:', error);
+      },
+    });
+
+    stompClient.activate();
+    stompClientRef.current = stompClient;
+
+    return () => {
+      hangupCall();
+      stompClient.deactivate();
+    };
+  }, [navigate, userId]);
+
+  const createPeerConnection = () => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+
+      ],
+    });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate && targetUserIdRef.current) {
+        console.log('Generated ICE candidate:', event.candidate);
+        iceCandidateBuffer.current.push(event.candidate.toJSON());
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log('Received remote stream:', event.streams[0]);
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = event.streams[0];
+        remoteAudioRef.current.play().catch((error) => {
+          console.error('Autoplay error:', error);
+        });
+      }
+    };
+
+    return pc;
+  };
+
+  const sendBufferedIceCandidates = () => {
+    setTimeout(() => {
+      if (targetUserIdRef.current && iceCandidateBuffer.current.length > 0) {
+        iceCandidateBuffer.current.forEach((candidate) => {
+          const payload = {
+            targetUserId: targetUserIdRef.current,
+            candidate,
+          };
+          console.log('Sending ICE candidate:', payload);
+          stompClientRef.current.publish({
+            destination: '/app/call/ice-candidate',
+            body: JSON.stringify(payload),
+          });
+        });
+        iceCandidateBuffer.current = [];
+      }
+    }, 100);
+  };
+
+  const requestMediaPermissions = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      return true;
+    } catch (error) {
+      console.error('Permission error:', error);
+      return false;
+    }
+  };
+
+  const startCallAsCaller = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localAudioRef.current.srcObject = stream;
+      const pc = createPeerConnection();
+      peerConnectionRef.current = pc;
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      console.log('Offer SDP:', offer.sdp);
+      const payload = {
+        targetUserId: targetUserIdRef.current,
+        sdp: offer,
+      };
+      console.log('Sending offer:', payload);
+      stompClientRef.current.publish({
+        destination: '/app/call/offer',
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error('Error starting call:', error);
+      alert('Failed to start call. Please check microphone permissions.');
+      hangupCall();
+    }
+  };
+
+  const startCallAsCallee = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localAudioRef.current.srcObject = stream;
+      const pc = createPeerConnection();
+      peerConnectionRef.current = pc;
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    } catch (error) {
+      console.error('Error starting call:', error);
+      alert('Failed to start call. Please check microphone permissions.');
+      hangupCall();
+    }
+  };
+
+  const handleOffer = async (signal) => {
+    try {
+      await startCallAsCallee();
+      const pc = peerConnectionRef.current;
+      if (pc.signalingState === 'stable' || pc.signalingState === 'have-local-offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        console.log('Offer applied');
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        console.log('Answer SDP:', answer.sdp);
+        const payload = {
+          targetUserId: targetUserIdRef.current,
+          sdp: answer,
+        };
+        console.log('Sending answer:', payload);
+        stompClientRef.current.publish({
+          destination: '/app/call/answer',
+          body: JSON.stringify(payload),
+        });
+        sendBufferedIceCandidates();
+      } else {
+        console.error('Invalid signaling state:', pc.signalingState);
+      }
+    } catch (error) {
+      console.error('Error handling offer:', error);
+      hangupCall();
+    }
+  };
+
+  const handleAnswer = async (signal) => {
+    try {
+      const pc = peerConnectionRef.current;
+      if (pc.signalingState === 'have-local-offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        console.log('Answer applied');
+        sendBufferedIceCandidates();
+      } else {
+        console.error('Invalid signaling state:', pc.signalingState);
+      }
+    } catch (error) {
+      console.error('Error handling answer:', error);
+      hangupCall();
+    }
+  };
+
+  const handleIceCandidate = async (signal) => {
+    try {
+      const pc = peerConnectionRef.current;
+      if (signal.candidate && pc && pc.remoteDescription) {
+        await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        console.log('ICE candidate applied');
+      } else {
+        console.warn('Skipping ICE candidate: PeerConnection or remoteDescription not ready');
+      }
+    } catch (error) {
+      console.error('Error handling ICE candidate:', error);
+    }
+  };
+
+  const handleCallAccepted = (notification) => {
+    console.log('Call accepted by user:', notification.userId);
+    setTargetUserId(notification.userId);
+    targetUserIdRef.current = notification.userId;
+    startCallAsCaller();
+  };
+
+  const initiateCall = async (targetId, name) => {
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) {
+      alert('Microphone access is required to make a call.');
+      return;
+    }
+    setTargetUserId(targetId);
+    setTargetUserName(name);
+    targetUserIdRef.current = targetId;
+    const payload = { targetUserId: targetId.toString() };
+    console.log('Initiating call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/initiate',
+      body: JSON.stringify(payload),
+    });
+  };
+
+  const acceptCall = async () => {
+    if (!incomingCall) return;
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) {
+      alert('Microphone access is required to accept the call.');
+      return;
+    }
+    setTargetUserId(incomingCall.userId);
+    targetUserIdRef.current = incomingCall.userId;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Accepting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/accept',
+      body: JSON.stringify(payload),
+    });
+    startCallAsCallee();
+    setIncomingCall(null);
+  };
+
+  const rejectCall = () => {
+    if (!incomingCall) return;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Rejecting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/reject',
+      body: JSON.stringify(payload),
+    });
+    setIncomingCall(null);
+  };
+
+  const hangupCall = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then((stream) => {
+        stream.getTracks().forEach(track => track.stop());
+    });
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    if (localAudioRef.current?.srcObject) {
+      localAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
+    }
+    if (remoteAudioRef.current?.srcObject) {
+        remoteAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        remoteAudioRef.current.srcObject = null;
+      }
+    localAudioRef.current.srcObject = null;
+    iceCandidateBuffer.current = [];
+    setTargetUserId(null);
+    setIncomingCall(null);
+  };
+
+  const searchUser = () => {
+    const trimmed = searchInput.trim();
+    if (trimmed && trimmed !== '%') {
+      fetch(`/api/user/search?keyword=${encodeURIComponent(trimmed)}`)
+        .then((response) => {
+          if (!response.ok) throw new Error('Failed to search');
+          return response.json();
+        })
+        .then((data) => setUsers(data))
+        .catch((error) => {
+          console.error('Search error:', error);
+          setUsers([]);
+        });
+    } else {
+      setUsers([]);
+    }
+  };
+
+  const handleKeyUp = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      searchUser();
+    }
+  };
+
+  return (
+    <>
+      <div className="container">
+        <h2>전화상대 검색</h2>
+        <div className="search-bar">
+          <input
+            type="text"
+            id="userSearch"
+            placeholder="검색할 이름을 입력해주세요"
+            maxLength="255"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyUp={handleKeyUp}
+          />
+          <button onClick={searchUser}>
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </button>
+        </div>
+        <div className="user-divider"></div>
+        <div id="userResults">
+          {users.length === 0 ? (
+            <p className="footer">Please enter a username to search.</p>
+          ) : (
+            users.map((user) => {
+              if (user.userId === parseInt(userId)) {
+                return (
+                  <div className="user-result-item" key={user.userId}>
+                    <span className="user-name">{user.name}</span>
+                    <p className="user-action">본인입니다.</p>
+                    <div className="user-divider"></div>
+                  </div>
+                );
+              }
+              return (
+                <div className="user-result-item" key={user.userId}>
+                  <span className="user-name">
+                    {user.name}
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        initiateCall(user.userId, user.name);
+                      }}
+                      className="chat-link"
+                    >
+                      <FontAwesomeIcon icon={faPhone} style={{ fontSize: '20px', color: '#3b83fa' }} />
+                    </a>
+                  </span>
+                  <p className="user-action">{user.email}</p>
+                  <div className="user-divider"></div>
+                </div>
+              );
+            })
+          )}
+        </div>
+        <button onClick={() => navigate('/chat-list')} className="white-btn">
+          <FontAwesomeIcon icon={faArrowLeftLong} /> 뒤로가기
+        </button>
+      </div>
+
+      {incomingCall && (
+        <div className="incoming-call">
+          <h3>수신전화: {incomingCall.name}</h3>
+          <button onClick={acceptCall} className="change-button">수락</button>
+          <button onClick={rejectCall} className='cancel-button'>거절</button>
+        </div>
+      )}
+
+      {targetUserId && (
+        <div className="in-call">
+          <h3>{targetUserName}님과 통화 중</h3>
+          <button onClick={hangupCall} className='cancel-button'>종료</button>
+        </div>
+      )}
+
+      <audio ref={localAudioRef} autoPlay muted playsInline />
+      <audio ref={remoteAudioRef} autoPlay playsInline />
+
+      <p className="footer">A chat service by Seunghyun Yoo.</p>
+    </>
+  );
+}
+
+export default Call;
