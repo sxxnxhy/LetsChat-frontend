@@ -10,6 +10,7 @@ function Call() {
   const [incomingCall, setIncomingCall] = useState(null);
   const [targetUserId, setTargetUserId] = useState(null);
   const [targetUserName, setTargetUserName] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected'); // New state for UI
   const targetUserIdRef = useRef(null);
   const navigate = useNavigate();
   const stompClientRef = useRef(null);
@@ -103,7 +104,11 @@ function Call() {
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-
+        {
+            urls: "turn:syoo.shop",
+            username: "syoo",
+            credential: "shop",
+        },
       ],
     });
 
@@ -123,6 +128,27 @@ function Call() {
         });
       }
     };
+    // Monitor ICE connection state
+    pc.oniceconnectionstatechange = () => {
+        console.log('ICE Connection State:', pc.iceConnectionState);
+        setConnectionStatus(pc.iceConnectionState);
+        if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            console.log('WebRTC connection established!');
+        } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+            console.error('Connection failed or disconnected');
+            alert('Call connection failed. Please try again.');
+            hangupCall();
+        }
+        };
+    
+        // Optional: Monitor connection state for additional confirmation
+        pc.onconnectionstatechange = () => {
+        console.log('Connection State:', pc.connectionState);
+        if (pc.connectionState === 'connected') {
+            console.log('Full WebRTC connection (ICE + DTLS) established!');
+        }
+        };
+      
 
     return pc;
   };
@@ -420,15 +446,23 @@ function Call() {
       {incomingCall && (
         <div className="incoming-call">
           <h3>수신전화: {incomingCall.name}</h3>
-          <button onClick={acceptCall} className="change-button">수락</button>
-          <button onClick={rejectCall} className='cancel-button'>거절</button>
+          <button onClick={acceptCall} className="change-button">
+            수락
+          </button>
+          <button onClick={rejectCall} className="cancel-button">
+            거절
+          </button>
         </div>
       )}
 
       {targetUserId && (
         <div className="in-call">
-          <h3>{targetUserName}님과 통화 중</h3>
-          <button onClick={hangupCall} className='cancel-button'>종료</button>
+          <h3>
+            {targetUserName}님과 통화 중 ({connectionStatus === 'connected' || connectionStatus === 'completed' ? '연결 완료' : '연결 중...'})
+          </h3>
+          <button onClick={hangupCall} className="cancel-button">
+            종료
+          </button>
         </div>
       )}
 
