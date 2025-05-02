@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket, faComment, faPlus, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faRightFromBracket, faComment, faPlus, faGear, faPhone } from '@fortawesome/free-solid-svg-icons';
 
 function ChatList() {
   const [chats, setChats] = useState(null);
@@ -119,6 +119,13 @@ function ChatList() {
       <div className="container">
         <div className="chat-actions">
           <h2>채팅</h2>
+          <div className="chat-actions">
+          <button className='change-button' onClick={() => navigate('/call')}>
+            <span>
+            <FontAwesomeIcon icon={faPhone} style={{ fontSize: '20px' }} />
+            </span>
+          </button>
+          &nbsp;
           <button onClick={() => navigate('/find-user')}>
             <span>
             <FontAwesomeIcon icon={faComment} style={{ fontSize: '20px' }} />
@@ -127,6 +134,7 @@ function ChatList() {
              <FontAwesomeIcon icon={faPlus} style={{ fontSize: '16px' }}/>
              </span>
           </button>
+          </div>
         </div>
         <hr style={{width: "100%", border: "none", borderTop: "2px solid #ccc", margin: "0", padding: "3px", boxSizing: "border-box", height: "1px"}}/>
         
