@@ -12,8 +12,276 @@ function ChatList() {
   const [name, setName] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
 
+  const [incomingCall, setIncomingCall] = useState(null);
+  const [targetUserId, setTargetUserId] = useState(null);
+  const [targetUserName, setTargetUserName] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const targetUserIdRef = useRef(null);
+  const stompClientRef = useRef(null);
+  const peerConnectionRef = useRef(null);
+  const localAudioRef = useRef(null);
+  const remoteAudioRef = useRef(null);
+  const userId = localStorage.getItem('userId');
+  const iceCandidateBuffer = useRef([]);
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const stompClient = new Client({
+      brokerURL: '/websocket',
+      onConnect: () => {
+        console.log('STOMP Connected');
+        stompClient.subscribe(`/queue/call/incoming/${userId}`, (message) => {
+          try {
+            const notification = JSON.parse(message.body);
+            console.log('Incoming call:', notification);
+            setIncomingCall(notification);
+            setTargetUserName(notification.name)
+          } catch (error) {
+            console.error('Error parsing incoming call:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/offer/${userId}`, (message) => {
+          try {
+            const signal = JSON.parse(message.body);
+            console.log('Received offer:', signal);
+            handleOffer(signal);
+          } catch (error) {
+            console.error('Error parsing offer:', error);
+          }
+        });
+        stompClient.subscribe(`/queue/call/ice-candidate/${userId}`, (message) => {
+          try {
+            const signal = JSON.parse(message.body);
+            console.log('Received ICE candidate:', signal);
+            handleIceCandidate(signal);
+          } catch (error) {
+            console.error('Error parsing ICE candidate:', error);
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error('STOMP Error:', frame);
+      },
+      onWebSocketError: (error) => {
+        console.error('WebSocket Error:', error);
+      },
+    });
+
+    stompClient.activate();
+    stompClientRef.current = stompClient;
+
+    return () => {
+    //   hangupCall();
+      stompClient.deactivate();
+    };
+  }, [navigate, userId]);
+
+  const acceptCall = async () => {
+    if (!incomingCall) return;
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) {
+      alert('통화를 위해 마이크 권한을 확인해주세요.');
+      return;
+    }
+    setTargetUserId(incomingCall.userId);
+    targetUserIdRef.current = incomingCall.userId;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Accepting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/accept',
+      body: JSON.stringify(payload),
+    });
+    startCallAsCallee();
+    setIncomingCall(null);
+  };
+
+  const requestMediaPermissions = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      return true;
+    } catch (error) {
+      console.error('Permission error:', error);
+      return false;
+    }
+  };
+
+  const rejectCall = () => {
+    if (!incomingCall) return;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Rejecting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/reject',
+      body: JSON.stringify(payload),
+    });
+    setIncomingCall(null);
+  };
+
+  const startCallAsCallee = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localAudioRef.current.srcObject = stream;
+      const pc = createPeerConnection();
+      peerConnectionRef.current = pc;
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    } catch (error) {
+      console.error('Error starting call:', error);
+      alert('통화 실패. 마이크 권한을 확인해주세요.');
+      hangupCall();
+    }
+  };
+
+  const createPeerConnection = () => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        {
+            urls: ['turn:syoo.shop', 'turns:syoo.shop'],
+            username: 'syoo',
+            credential: 'shop'
+        }
+      ],
+    });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate && targetUserIdRef.current) {
+        console.log('Generated ICE candidate:', event.candidate);
+        iceCandidateBuffer.current.push(event.candidate.toJSON());
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log('Received remote stream:', event.streams[0]);
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = event.streams[0];
+        remoteAudioRef.current.play().catch((error) => {
+          console.error('Autoplay error:', error);
+        });
+      }
+    };
+    // Monitor ICE connection state
+    pc.oniceconnectionstatechange = () => {
+        console.log('ICE Connection State:', pc.iceConnectionState);
+        setConnectionStatus(pc.iceConnectionState);
+        if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            console.log('WebRTC connection established!');
+        } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+            console.error('Connection failed or disconnected');
+            hangupCall();
+        }
+    };
+
+    //  Monitor connection state for additional confirmation
+    pc.onconnectionstatechange = () => {
+        console.log('Connection State:', pc.connectionState);
+        if (pc.connectionState === 'connected') {
+            console.log('Full WebRTC connection (ICE + DTLS) established!');
+        }
+    };
+    return pc;
+  };
+
+  const handleOffer = async (signal) => {
+    try {
+      await startCallAsCallee();
+      const pc = peerConnectionRef.current;
+      if (pc.signalingState === 'stable' || pc.signalingState === 'have-local-offer') {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        console.log('Offer applied');
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        console.log('Answer SDP:', answer.sdp);
+        const payload = {
+          targetUserId: targetUserIdRef.current,
+          sdp: answer,
+        };
+        console.log('Sending answer:', payload);
+        stompClientRef.current.publish({
+          destination: '/app/call/answer',
+          body: JSON.stringify(payload),
+        });
+        sendBufferedIceCandidates();
+      } else {
+        console.error('Invalid signaling state:', pc.signalingState);
+      }
+    } catch (error) {
+      console.error('Error handling offer:', error);
+      hangupCall();
+    }
+  };
+
+  const sendBufferedIceCandidates = () => {
+    setTimeout(() => {
+      if (targetUserIdRef.current && iceCandidateBuffer.current.length > 0) {
+        iceCandidateBuffer.current.forEach((candidate) => {
+          const payload = {
+            targetUserId: targetUserIdRef.current,
+            candidate,
+          };
+          console.log('Sending ICE candidate:', payload);
+          stompClientRef.current.publish({
+            destination: '/app/call/ice-candidate',
+            body: JSON.stringify(payload),
+          });
+        });
+        iceCandidateBuffer.current = [];
+      }
+    }, 500);
+  };
+
+  const handleIceCandidate = async (signal) => {
+    try {
+      const pc = peerConnectionRef.current;
+      if (signal.candidate && pc && pc.remoteDescription) {
+        await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        console.log('ICE candidate applied');
+      } else {
+        console.warn('Skipping ICE candidate: PeerConnection or remoteDescription not ready');
+      }
+    } catch (error) {
+      console.error('Error handling ICE candidate:', error);
+    }
+  };
+  
+  useEffect(() => {
+    if (connectionStatus == 'disconnected') {
+      setSeconds(0); // reset when disconnected
+      return;
+    }
+    const interval = setInterval(() => {
+      setSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval); // cleanup on disconnect or unmount
+  }, [connectionStatus]);
+
+  const formatTime = (totalSeconds) => {
+    const mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const secs = String(totalSeconds % 60).padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  const hangupCall = () => {
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    if (localAudioRef.current?.srcObject) {
+      localAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      localAudioRef.current.srcObject = null;
+    }
+    if (remoteAudioRef.current?.srcObject) {
+        remoteAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        remoteAudioRef.current.srcObject = null;
+      }
+    iceCandidateBuffer.current = [];
+    setTargetUserId(null);
+    setIncomingCall(null);
+    alert("통화가 종료되었습니다.");
+    window.location.href = '/chat-list';
+  };
+
+
+  useEffect(() => {
     const userId = localStorage.getItem('userId');
     if (!userId) {
       fetch('/api/user/id', {
@@ -33,7 +301,6 @@ function ChatList() {
           navigate('/login');
         });
     }
-
     loadChatList();
     loadUserNameAndEmail();
     const stompClient = new Client({
@@ -55,7 +322,6 @@ function ChatList() {
         }
       });
     };
-
     return () => {
       stompClient.deactivate();
     };
@@ -214,6 +480,59 @@ function ChatList() {
           </span>
         </div>
       </div>
+
+      {incomingCall && (
+        <div className="call-backdrop">
+            <div className="incoming-call">
+                <div className="call-header">
+                    <h3>수신전화</h3>
+                    <h2>{incomingCall.name}</h2>
+                </div>
+                <div className="call-actions">
+                    <button onClick={acceptCall} className="accept-button">
+                    수락
+                    </button>
+                    <button onClick={rejectCall} className="reject-button">
+                    거절
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {targetUserId && (
+        <div className="call-backdrop">
+            <div className="in-call">
+                <div className="call-header">
+                    <h2>{targetUserName}</h2>
+                    <div className={`status-indicator ${connectionStatus}`}>
+                    {connectionStatus === 'connected' || connectionStatus === 'completed' ? (
+                        <div>
+                            <span>통화 중</span>
+                            <p className="signup-prompt">{formatTime(seconds)}</p>
+                        </div>
+                    ) : (
+                        <span className="connecting">
+                        연결 중
+                        <span className="dots">
+                            <span>.</span><span>.</span><span>.</span>
+                        </span>
+                        </span>
+                    )}
+                    </div>
+                </div>
+                <div className="call-actions">
+                    <button onClick={hangupCall} className="hangup-button">
+                    통화 종료
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      <audio ref={localAudioRef} autoPlay muted playsInline />
+      <audio ref={remoteAudioRef} autoPlay playsInline />
+
     </>
   );
 }

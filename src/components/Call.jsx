@@ -248,7 +248,7 @@ function Call() {
             console.log('WebRTC connection established!');
         } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
             console.error('Connection failed or disconnected');
-            alert('통화가 종료되었습니다.');
+            // alert('통화가 종료되었습니다.');
             hangupCall();
         }
     };
