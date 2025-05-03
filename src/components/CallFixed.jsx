@@ -4,13 +4,12 @@ import { Client } from '@stomp/stompjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faArrowLeftLong, faPhone } from '@fortawesome/free-solid-svg-icons';
 
-function Call() {
+function CallFixed() {
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const [incomingCall, setIncomingCall] = useState(null);
   const [targetUserId, setTargetUserId] = useState(null);
   const [targetUserName, setTargetUserName] = useState(null);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const targetUserIdRef = useRef(null);
   const navigate = useNavigate();
   const stompClientRef = useRef(null);
@@ -19,7 +18,6 @@ function Call() {
   const remoteAudioRef = useRef(null);
   const userId = localStorage.getItem('userId');
   const iceCandidateBuffer = useRef([]);
-  const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
     if (!userId) {
@@ -54,8 +52,7 @@ function Call() {
           console.log('Call rejected');
           setTargetUserId(null);
           setIncomingCall(null);
-          alert('상대방이 통화를 거절했습니다.');
-          window.location.href = '/call';
+          alert('Call was rejected.');
         });
         stompClient.subscribe(`/queue/call/offer/${userId}`, (message) => {
           try {
@@ -97,67 +94,60 @@ function Call() {
     stompClientRef.current = stompClient;
 
     return () => {
-    //   hangupCall();
+      hangupCall();
       stompClient.deactivate();
     };
   }, [navigate, userId]);
 
-
-
-
-  const initiateCall = async (targetId, name) => {
-    if (targetUserId !== null) return;
-    const hasPermission = await requestMediaPermissions();
-    if (!hasPermission) {
-      alert('통화를 위해 마이크 권한을 확인해주세요.');
-      return;
-    }
-    setTargetUserId(targetId);
-    setTargetUserName(name);
-    targetUserIdRef.current = targetId;
-    const payload = { targetUserId: targetId.toString() };
-    console.log('Initiating call:', payload);
-    stompClientRef.current.publish({
-      destination: '/app/call/initiate',
-      body: JSON.stringify(payload),
+  const createPeerConnection = () => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        {
+            urls: ['turn:syoo.shop', 'turns:syoo.shop'],
+            username: 'syoo',
+            credential: 'shop'
+        }
+      ],
     });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate && targetUserIdRef.current) {
+        console.log('Generated ICE candidate:', event.candidate);
+        iceCandidateBuffer.current.push(event.candidate.toJSON());
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log('Received remote stream:', event.streams[0]);
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = event.streams[0];
+        remoteAudioRef.current.play().catch((error) => {
+          console.error('Autoplay error:', error);
+        });
+      }
+    };
+
+    return pc;
   };
 
-  const acceptCall = async () => {
-    if (!incomingCall) return;
-    const hasPermission = await requestMediaPermissions();
-    if (!hasPermission) {
-      alert('통화를 위해 마이크 권한을 확인해주세요.');
-      return;
-    }
-    setTargetUserId(incomingCall.userId);
-    targetUserIdRef.current = incomingCall.userId;
-    const payload = { targetUserId: incomingCall.userId };
-    console.log('Accepting call:', payload);
-    stompClientRef.current.publish({
-      destination: '/app/call/accept',
-      body: JSON.stringify(payload),
-    });
-    startCallAsCallee();
-    setIncomingCall(null);
-  };
-
-  const rejectCall = () => {
-    if (!incomingCall) return;
-    const payload = { targetUserId: incomingCall.userId };
-    console.log('Rejecting call:', payload);
-    stompClientRef.current.publish({
-      destination: '/app/call/reject',
-      body: JSON.stringify(payload),
-    });
-    setIncomingCall(null);
-  };
-
-  const handleCallAccepted = (notification) => {
-    console.log('Call accepted by user:', notification.userId);
-    setTargetUserId(notification.userId);
-    targetUserIdRef.current = notification.userId;
-    startCallAsCaller();
+  const sendBufferedIceCandidates = () => {
+    setTimeout(() => {
+      if (targetUserIdRef.current && iceCandidateBuffer.current.length > 0) {
+        iceCandidateBuffer.current.forEach((candidate) => {
+          const payload = {
+            targetUserId: targetUserIdRef.current,
+            candidate,
+          };
+          console.log('Sending ICE candidate:', payload);
+          stompClientRef.current.publish({
+            destination: '/app/call/ice-candidate',
+            body: JSON.stringify(payload),
+          });
+        });
+        iceCandidateBuffer.current = [];
+      }
+    }, 500);
   };
 
   const requestMediaPermissions = async () => {
@@ -192,7 +182,7 @@ function Call() {
       });
     } catch (error) {
       console.error('Error starting call:', error);
-      alert('통화 실패. 마이크 권한을 확인해주세요.');
+      alert('Failed to start call. Please check microphone permissions.');
       hangupCall();
     }
   };
@@ -206,61 +196,9 @@ function Call() {
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
     } catch (error) {
       console.error('Error starting call:', error);
-      alert('통화 실패. 마이크 권한을 확인해주세요.');
+      alert('Failed to start call. Please check microphone permissions.');
       hangupCall();
     }
-  };
-
-
-  const createPeerConnection = () => {
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        {
-            urls: ['turn:syoo.shop', 'turns:syoo.shop'],
-            username: 'syoo',
-            credential: 'shop'
-        }
-      ],
-    });
-
-    pc.onicecandidate = (event) => {
-      if (event.candidate && targetUserIdRef.current) {
-        console.log('Generated ICE candidate:', event.candidate);
-        iceCandidateBuffer.current.push(event.candidate.toJSON());
-      }
-    };
-
-    pc.ontrack = (event) => {
-      console.log('Received remote stream:', event.streams[0]);
-      if (remoteAudioRef.current) {
-        remoteAudioRef.current.srcObject = event.streams[0];
-        remoteAudioRef.current.play().catch((error) => {
-          console.error('Autoplay error:', error);
-        });
-      }
-    };
-    // Monitor ICE connection state
-    pc.oniceconnectionstatechange = () => {
-        console.log('ICE Connection State:', pc.iceConnectionState);
-        setConnectionStatus(pc.iceConnectionState);
-        if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
-            console.log('WebRTC connection established!');
-        } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
-            console.error('Connection failed or disconnected');
-            alert('통화가 종료되었습니다.');
-            hangupCall();
-        }
-    };
-
-    //  Monitor connection state for additional confirmation
-    pc.onconnectionstatechange = () => {
-        console.log('Connection State:', pc.connectionState);
-        if (pc.connectionState === 'connected') {
-            console.log('Full WebRTC connection (ICE + DTLS) established!');
-        }
-    };
-    return pc;
   };
 
   const handleOffer = async (signal) => {
@@ -308,25 +246,6 @@ function Call() {
     }
   };
 
-  const sendBufferedIceCandidates = () => {
-    setTimeout(() => {
-      if (targetUserIdRef.current && iceCandidateBuffer.current.length > 0) {
-        iceCandidateBuffer.current.forEach((candidate) => {
-          const payload = {
-            targetUserId: targetUserIdRef.current,
-            candidate,
-          };
-          console.log('Sending ICE candidate:', payload);
-          stompClientRef.current.publish({
-            destination: '/app/call/ice-candidate',
-            body: JSON.stringify(payload),
-          });
-        });
-        iceCandidateBuffer.current = [];
-      }
-    }, 500);
-  };
-
   const handleIceCandidate = async (signal) => {
     try {
       const pc = peerConnectionRef.current;
@@ -340,46 +259,84 @@ function Call() {
       console.error('Error handling ICE candidate:', error);
     }
   };
-  
-  useEffect(() => {
-    if (connectionStatus == 'disconnected') {
-      setSeconds(0); // reset when disconnected
+
+  const handleCallAccepted = (notification) => {
+    console.log('Call accepted by user:', notification.userId);
+    setTargetUserId(notification.userId);
+    targetUserIdRef.current = notification.userId;
+    startCallAsCaller();
+  };
+
+  const initiateCall = async (targetId, name) => {
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) {
+      alert('Microphone access is required to make a call.');
       return;
     }
-    const interval = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(interval); // cleanup on disconnect or unmount
-  }, [connectionStatus]);
+    setTargetUserId(targetId);
+    setTargetUserName(name);
+    targetUserIdRef.current = targetId;
+    const payload = { targetUserId: targetId.toString() };
+    console.log('Initiating call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/initiate',
+      body: JSON.stringify(payload),
+    });
+  };
 
-  const formatTime = (totalSeconds) => {
-    const mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-    const secs = String(totalSeconds % 60).padStart(2, "0");
-    return `${mins}:${secs}`;
+  const acceptCall = async () => {
+    if (!incomingCall) return;
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) {
+      alert('Microphone access is required to accept the call.');
+      return;
+    }
+    setTargetUserId(incomingCall.userId);
+    targetUserIdRef.current = incomingCall.userId;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Accepting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/accept',
+      body: JSON.stringify(payload),
+    });
+    startCallAsCallee();
+    setIncomingCall(null);
+  };
+
+  const rejectCall = () => {
+    if (!incomingCall) return;
+    const payload = { targetUserId: incomingCall.userId };
+    console.log('Rejecting call:', payload);
+    stompClientRef.current.publish({
+      destination: '/app/call/reject',
+      body: JSON.stringify(payload),
+    });
+    setIncomingCall(null);
   };
 
   const hangupCall = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then((stream) => {
+        stream.getTracks().forEach(track => track.stop());
+    });
     if (peerConnectionRef.current) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
     if (localAudioRef.current?.srcObject) {
       localAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      localAudioRef.current.srcObject = null;
     }
     if (remoteAudioRef.current?.srcObject) {
         remoteAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteAudioRef.current.srcObject = null;
       }
+    localAudioRef.current.srcObject = null;
     iceCandidateBuffer.current = [];
     setTargetUserId(null);
     setIncomingCall(null);
-    alert("통화 종료. 채팅 목록으로 이동합니다.");
-    window.location.href = '/chat-list';
   };
 
   const searchUser = () => {
-    if (targetUserId !== null) return;
     const trimmed = searchInput.trim();
     if (trimmed && trimmed !== '%') {
       fetch(`/api/user/search?keyword=${encodeURIComponent(trimmed)}`)
@@ -407,8 +364,7 @@ function Call() {
   return (
     <>
       <div className="container">
-        <h2>보이스채팅 <FontAwesomeIcon icon={faPhone} style={{ fontSize: '20px' }} />
-        </h2>
+        <h2>전화상대 검색</h2>
         <div className="search-bar">
           <input
             type="text"
@@ -426,12 +382,7 @@ function Call() {
         <div className="user-divider"></div>
         <div id="userResults">
           {users.length === 0 ? (
-            <div>
-                <br />
-                <p className="signup-prompt" style={{ textAlign: 'center' }}>전화를 받거나 걸 수 있는 공간입니다!</p>
-                <br />
-                <p className="signup-prompt" style={{ textAlign: 'center' }}>전화하고싶은 상대를 검색해보세요!</p>
-            </div>
+            <p className="footer">Please enter a username to search.</p>
           ) : (
             users.map((user) => {
               if (user.userId === parseInt(userId)) {
@@ -465,71 +416,32 @@ function Call() {
             })
           )}
         </div>
-        <button
-            onClick={() => {
-                if (targetUserId !== null) return;
-                navigate('/chat-list');
-            }}
-            className="white-btn"
-        >
+        <button onClick={() => navigate('/chat-list')} className="white-btn">
           <FontAwesomeIcon icon={faArrowLeftLong} /> 뒤로가기
         </button>
       </div>
 
       {incomingCall && (
-        <div className="call-backdrop">
-            <div className="incoming-call">
-                <div className="call-header">
-                    <h3>수신전화</h3>
-                    <h2>{incomingCall.name}</h2>
-                </div>
-                <div className="call-actions">
-                    <button onClick={acceptCall} className="accept-button">
-                    수락
-                    </button>
-                    <button onClick={rejectCall} className="reject-button">
-                    거절
-                    </button>
-                </div>
-            </div>
+        <div className="incoming-call">
+          <h3>수신전화: {incomingCall.name}</h3>
+          <button onClick={acceptCall} className="change-button">수락</button>
+          <button onClick={rejectCall} className='cancel-button'>거절</button>
         </div>
       )}
 
       {targetUserId && (
-        <div className="call-backdrop">
-            <div className="in-call">
-                <div className="call-header">
-                    <h2>{targetUserName}</h2>
-                    <div className={`status-indicator ${connectionStatus}`}>
-                    {connectionStatus === 'connected' || connectionStatus === 'completed' ? (
-                        <div>
-                            <span>통화 중</span>
-                            <p className="signup-prompt">{formatTime(seconds)}</p>
-                        </div>
-                    ) : (
-                        <span className="connecting">
-                        연결 중
-                        <span className="dots">
-                            <span>.</span><span>.</span><span>.</span>
-                        </span>
-                        </span>
-                    )}
-                    </div>
-                </div>
-                <div className="call-actions">
-                    <button onClick={hangupCall} className="hangup-button">
-                    통화 종료
-                    </button>
-                </div>
-            </div>
+        <div className="in-call">
+          <h3>{targetUserName}님과 통화 중</h3>
+          <button onClick={hangupCall} className='cancel-button'>종료</button>
         </div>
       )}
 
       <audio ref={localAudioRef} autoPlay muted playsInline />
       <audio ref={remoteAudioRef} autoPlay playsInline />
 
+      <p className="footer">A chat service by Seunghyun Yoo.</p>
     </>
   );
 }
 
-export default Call;
+export default CallFixed;
