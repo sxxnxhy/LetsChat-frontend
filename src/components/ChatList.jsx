@@ -59,6 +59,20 @@ function ChatList() {
             console.error('Error parsing ICE candidate:', error);
           }
         });
+        stompClient.subscribe(`/queue/call/hangup/${userId}`, (message) => {
+          const signal = JSON.parse(message.body);
+          if (targetUserIdRef.current == signal.targetUserId) {
+            try {
+              console.log('Hangup from:', signal);
+              setIncomingCall(null);
+              setTargetUserName(null)
+              targetUserIdRef.current = null;
+              hangupCall();
+            } catch (error) {
+              console.error('Error hanging up call:', error);
+            }
+          }
+        });
       },
       onStompError: (frame) => {
         console.error('STOMP Error:', frame);
@@ -273,6 +287,12 @@ function ChatList() {
         remoteAudioRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteAudioRef.current.srcObject = null;
       }
+    const payload = { targetUserId: targetUserIdRef.current };
+    console.log('Hangup call request:', payload);
+      stompClientRef.current.publish({
+        destination: '/app/call/hangup',
+        body: JSON.stringify(payload),
+      });
     iceCandidateBuffer.current = [];
     setTargetUserId(null);
     setIncomingCall(null);
