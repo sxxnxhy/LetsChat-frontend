@@ -129,7 +129,7 @@ function Call() {
     setTargetUserId(targetId);
     setTargetUserName(name);
     targetUserIdRef.current = targetId;
-    const payload = { targetUserId: targetId.toString() };
+    const payload = { targetUserId: targetId.toString(), userId: userId };
     console.log('Initiating call:', payload);
     stompClientRef.current.publish({
       destination: '/app/call/initiate',
@@ -146,7 +146,7 @@ function Call() {
     }
     setTargetUserId(incomingCall.userId);
     targetUserIdRef.current = incomingCall.userId;
-    const payload = { targetUserId: incomingCall.userId };
+    const payload = { targetUserId: incomingCall.userId, userId: userId };
     console.log('Accepting call:', payload);
     stompClientRef.current.publish({
       destination: '/app/call/accept',
@@ -158,7 +158,7 @@ function Call() {
 
   const rejectCall = () => {
     if (!incomingCall) return;
-    const payload = { targetUserId: incomingCall.userId };
+    const payload = { targetUserId: incomingCall.userId, userId: userId };
     console.log('Rejecting call:', payload);
     stompClientRef.current.publish({
       destination: '/app/call/reject',

@@ -100,7 +100,7 @@ function ChatList() {
     }
     setTargetUserId(incomingCall.userId);
     targetUserIdRef.current = incomingCall.userId;
-    const payload = { targetUserId: incomingCall.userId };
+    const payload = { targetUserId: incomingCall.userId, userId: userId };
     console.log('Accepting call:', payload);
     stompClientRef.current.publish({
       destination: '/app/call/accept',
@@ -122,7 +122,7 @@ function ChatList() {
 
   const rejectCall = () => {
     if (!incomingCall) return;
-    const payload = { targetUserId: incomingCall.userId };
+    const payload = { targetUserId: incomingCall.userId, userId: userId };
     console.log('Rejecting call:', payload);
     stompClientRef.current.publish({
       destination: '/app/call/reject',
