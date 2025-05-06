@@ -8,10 +8,10 @@ function AddUserToChat() {
   const chatRoomId = searchParams.get('cri');
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
+  const userId = localStorage.getItem('uid');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
     if (!userId) {
       navigate('/login');
       return;

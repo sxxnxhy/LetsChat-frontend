@@ -6,10 +6,10 @@ import { faMagnifyingGlass, faArrowLeftLong, faComment, faPlus } from '@fortawes
 function FindUser() {
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
+  const userId = localStorage.getItem('uid');
   const navigate = useNavigate();
   
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
     if (!userId) {
       navigate('/login');
       return;
@@ -89,7 +89,7 @@ function FindUser() {
             <p className='footer'>Please enter a username to search.</p>
           ) : (
             users.map(user => {
-              if (user.userId === parseInt(localStorage.getItem('userId'))) {
+              if (user.userId === parseInt(userId)) {
                 return (
                   <div className="user-result-item" key={user.userId}>
                     <span className="user-name">{user.name}</span>

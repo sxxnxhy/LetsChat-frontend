@@ -9,6 +9,7 @@ import ReactLinkify from 'react-linkify';
 
 
 function ChatRoom() {
+  const userId = localStorage.getItem('uid');
   const [searchParams] = useSearchParams();
   const chatRoomId = searchParams.get('cri');
   const [messages, setMessages] = useState([]);
@@ -35,7 +36,6 @@ function ChatRoom() {
   }, [isActive]);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
     if (!userId) {
       navigate('/login');
       return;
@@ -59,7 +59,7 @@ function ChatRoom() {
         stompClient.onConnect = (frame) => {
           console.log('Connected: ' + frame);
           stompClient.subscribe(`/topic/private-chat/${chatRoomId}`, (message) => {
-            if (!localStorage.getItem('userId')) {
+            if (!userId) {
               navigate('/login');
             }
             const msgData = JSON.parse(message.body);
@@ -76,7 +76,7 @@ function ChatRoom() {
     };
     initializeChat();
     const checkUserIdInterval = setInterval(() => {
-      if (!localStorage.getItem('userId')) {
+      if (!userId) {
         navigate('/chat-list');
       }
     }, 1000);
@@ -173,13 +173,13 @@ function ChatRoom() {
 
   const sendMessage = (content) => {
     if (!isLoading && content.trim()) {
-      if (!localStorage.getItem('userId')) {
+      if (!userId) {
         navigate('/login');
       }
       else {
         stompClientRef.current.publish({
           destination: '/app/private-message',
-          body: JSON.stringify({ chatRoomId, senderId: localStorage.getItem('userId'), content }),
+          body: JSON.stringify({ chatRoomId, senderId: userId, content }),
         });
       }
     }
@@ -194,7 +194,7 @@ function ChatRoom() {
     if (msgData.content.endsWith('나갔습니다')) {
       const username = msgData.content.replace(/"(.+)"님이 채팅에서 나갔습니다/, '$1'); 
       setUserList(prev => prev.filter(user => user.name !== username));
-      if (msgData.leftUserId === Number(localStorage.getItem('userId'))) {
+      if (msgData.leftUserId === Number(userId)) {
         navigate('/chat-list')
       }
     }
@@ -243,7 +243,7 @@ function ChatRoom() {
     setIsActive(false);
     stompClientRef.current.publish({
       destination: '/app/user-inactive',
-      body: JSON.stringify({ chatRoomId, userId: localStorage.getItem('userId') }),
+      body: JSON.stringify({ chatRoomId, userId: userId }),
     });
   };
 
@@ -251,7 +251,7 @@ function ChatRoom() {
     setIsActive(true);
     stompClientRef.current.publish({
       destination: '/app/user-active',
-      body: JSON.stringify({ chatRoomId, userId: localStorage.getItem('userId') }),
+      body: JSON.stringify({ chatRoomId, userId: userId }),
     });
     setUnreadCount(0); // Reset unread count
     document.title = originalTitleRef.current; // Restore original title
@@ -333,7 +333,7 @@ function ChatRoom() {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={msg.type === 'system' ? 'system-message' : `message ${msg.senderId == localStorage.getItem('userId') ? 'sent' : 'received'}`}
+            className={msg.type === 'system' ? 'system-message' : `message ${msg.senderId == userId ? 'sent' : 'received'}`}
           >
             {msg.type === 'system' ? (
               <>
@@ -344,7 +344,7 @@ function ChatRoom() {
               </>
             ) : (
               <>
-                {msg.senderId != localStorage.getItem('userId') && <div className="sender-name">{msg.senderName}</div>}
+                {msg.senderId != userId && <div className="sender-name">{msg.senderName}</div>}
                 <div className="message-bubble">
                   <ReactLinkify
                     componentDecorator={(decoratedHref, decoratedText, key) => (
@@ -380,7 +380,7 @@ function ChatRoom() {
         {userList.map(user => (
           <li key={user.userId}>
             <span>
-              {user.userId == localStorage.getItem('userId') ? `${user.name} (You)` : user.name}
+              {user.userId == userId ? `${user.name} (You)` : user.name}
             </span>
             <p className="user-action">{user.email}</p>
           </li>

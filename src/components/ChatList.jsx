@@ -22,7 +22,7 @@ function ChatList() {
   const peerConnectionRef = useRef(null);
   const localAudioRef = useRef(null);
   const remoteAudioRef = useRef(null);
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('uid');
   const iceCandidateBuffer = useRef([]);
   const [seconds, setSeconds] = useState(0);
 
@@ -302,7 +302,6 @@ function ChatList() {
 
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
     if (!userId) {
       fetch('/api/user/id', {
         method: 'GET',
@@ -313,7 +312,7 @@ function ChatList() {
           return response.json();
         })
         .then(user => {
-          localStorage.setItem('userId', user.userId)
+          localStorage.setItem('uid', user.userId)
         })
         .catch(error => {
           console.error('Error:', error);
@@ -329,7 +328,6 @@ function ChatList() {
     stompClient.activate();
     stompClient.onConnect = (frame) => {
       console.log('Connected for detecting incoming messages: ' + frame);
-      const userId = localStorage.getItem('userId');
       stompClient.subscribe(`/topic/toggle-refresh/${userId}`, (message) => {
         const refreshSignal = JSON.parse(message.body);
         if (refreshSignal === true) {

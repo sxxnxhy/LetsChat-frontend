@@ -5,7 +5,7 @@ function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem('uid');
     if (!userId || userId === '') {
       navigate('/login');
     } else {

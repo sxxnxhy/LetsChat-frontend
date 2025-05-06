@@ -8,7 +8,7 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.removeItem('userId');
+    localStorage.removeItem('uid');
   }, []);
 
   const handleLogin = () => {
@@ -25,7 +25,7 @@ function Login() {
         })
         .then(user => {
           setStatus(`${user.name}님 환영합니다!`);
-          localStorage.setItem('userId', user.userId);
+          localStorage.setItem('uid', user.userId);
           setTimeout(() => navigate('/chat-list'), 1000);
         })
         .catch(error => {

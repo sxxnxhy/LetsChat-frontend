@@ -17,7 +17,7 @@ function Call() {
   const peerConnectionRef = useRef(null);
   const localAudioRef = useRef(null);
   const remoteAudioRef = useRef(null);
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('uid');
   const iceCandidateBuffer = useRef([]);
   const [seconds, setSeconds] = useState(0);
 
