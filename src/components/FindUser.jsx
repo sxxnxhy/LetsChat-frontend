@@ -128,7 +128,6 @@ function FindUser() {
         </div>
         <button onClick={() => navigate('/chat-list')} className="white-btn"><FontAwesomeIcon icon={faArrowLeftLong} /> 뒤로가기</button>
       </div>
-      <p className="footer">A chat service by Seunghyun Yoo.</p>
     </>
   );
 }

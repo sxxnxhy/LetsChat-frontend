@@ -29,12 +29,14 @@ function ChatList() {
   useEffect(() => {
     const stompClient = new Client({
       brokerURL: '/websocket',
+      reconnectDelay: 5000,
       onConnect: () => {
-        console.log('STOMP Connected');
+        console.log('STOMP for detecting call Connected');
         stompClient.subscribe(`/queue/call/incoming/${userId}`, (message) => {
           try {
             const notification = JSON.parse(message.body);
             console.log('Incoming call:', notification);
+            targetUserIdRef.current = 0;
             setIncomingCall(notification);
             setTargetUserName(notification.name)
           } catch (error) {
@@ -68,6 +70,16 @@ function ChatList() {
               setTargetUserName(null)
               targetUserIdRef.current = null;
               hangupCall();
+            } catch (error) {
+              console.error('Error hanging up call:', error);
+            }
+          }
+          else if (targetUserIdRef.current == 0) {
+            try {
+              console.log('Hangup from:', signal);
+              setIncomingCall(null);
+              setTargetUserName(null)
+              targetUserIdRef.current = null;
             } catch (error) {
               console.error('Error hanging up call:', error);
             }
@@ -324,6 +336,7 @@ function ChatList() {
     loadUserNameAndEmail();
     const stompClient = new Client({
       brokerURL: "/websocket",
+      reconnectDelay: 5000,
     });
     stompClient.activate();
     stompClient.onConnect = (frame) => {

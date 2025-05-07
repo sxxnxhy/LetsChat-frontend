@@ -52,6 +52,7 @@ function ChatRoom() {
 
         const stompClient = new Client({
           brokerURL: "/websocket",
+          reconnectDelay: 5000,
         });
         stompClient.activate();
         stompClientRef.current = stompClient;
